@@ -1,0 +1,21 @@
+{
+  "name": "teamcity-parameters-set",
+  "version": "1.0.0",
+  "description": "Пакет для установки параметров teamcity",
+  "main": "index.js",
+  "scripts": { "test": "jasmine" },
+  "keywords": [
+    "teamcity"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jasmine": "^2.6.0",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.2"
+  },
+  "dependencies": {
+    "teamcity-service-messages": "^0.1.8"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "fixtures",
+  "version": "1.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ng-components": "11.9.0",
+    "ng-core": "11.10.0"
+  },
+  "teamcityParameters":{
+    "buildNumber": "%teamcity.build.branch%"
+  }
+}
