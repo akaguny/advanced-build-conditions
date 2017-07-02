@@ -1,31 +1,40 @@
 module.exports = {
-    "env": {
-        "es6": true,
-        "node": true,
-        "jasmine": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": 6
-    },
-    "rules": {
-        "indent": [
-            "error",
-            2
-        ],
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "func-style": ["error","declaration",{"allowArrowFunctions": true}]
-    }
+  'plugins': ['jasmine'],
+  'env': {
+    'node': true,
+    'jasmine': true,
+  },
+  'extends': ['standard', 'plugin:jasmine/recommended'],
+  'parserOptions': {
+    'sourceType': 'module',
+    'ecmaVersion': 6,
+  },
+  'rules': {
+    'linebreak-style': [
+      'error',
+      'windows',
+    ],
+    // Настройка отступов
+    "indent": [
+      "warn",
+      2,
+      {
+        "VariableDeclarator": {
+          // 4 для var
+          "var": 2,
+          // 4 для let
+          "let": 2,
+          // 6 для const
+          "const": 3
+        },
+        "SwitchCase": 1
+      }
+    ],
+    'semi': [
+      'error',
+      'always',
+    ],
+    'one-var': ["error", "always"],
+    'func-style': ['error', 'declaration', {'allowArrowFunctions': true}],
+  },
 };
