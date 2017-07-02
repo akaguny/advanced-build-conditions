@@ -1,13 +1,24 @@
-const teamcityParametersSet = {};
+#!/usr/bin/env node
 
-module.exports = teamcityParametersSet;
+/* eslint-env es6:true */
+'use-strict';
+const fs = require('fs-extra'),
+      isEqual = require('lodash.isequal');
 
-teamcityParametersSet.init = init;
+let error = fs.readJSON('./report1.json'),
+    newErrors = fs.readJSON('./report2.json'),
+    noNewErrors = fs.readJSON('./report3.json'),
+    newErrorsAndFiles = fs.readJSON('./report4.json'),
+    promises = [error, newErrors, noNewErrors, newErrorsAndFiles];
 
-(()=>{
-  init(arguments);
-})();
+Promise.all(promises).then((result) => {
 
-function init() {
+});
+
+function diffMessages (messages) {
+
+}
+
+function newErrorFiles () {
 
 }
