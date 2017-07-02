@@ -3,19 +3,31 @@
   "version": "1.0.0",
   "description": "Пакет для установки параметров teamcity",
   "main": "index.js",
-  "scripts": { "test": "jasmine" },
+  "scripts": {
+    "test": "jasmine"
+  },
   "keywords": [
     "teamcity"
   ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "expect.js": "^0.3.1",
+    "eslint": "^4.1.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.6.1",
+    "eslint-plugin-jasmine": "^2.6.2",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-jasmine-nodejs": "^1.6.0",
     "jasmine": "^2.6.0",
-    "mocha": "^3.4.2",
-    "nyc": "^11.0.2"
+    "shelljs": "^0.7.8",
+    "standard": "^10.0.2"
   },
   "dependencies": {
+    "fs-extra": "^3.0.1",
+    "lodash.isequal": "^4.5.0",
     "teamcity-service-messages": "^0.1.8"
   }
 }
