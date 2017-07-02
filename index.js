@@ -2,23 +2,16 @@
 
 /* eslint-env es6:true */
 'use-strict';
-const fs = require('fs-extra'),
-      isEqual = require('lodash.isequal');
+const fs = require('fs-extra');
 
-let error = fs.readJSON('./report1.json'),
-    newErrors = fs.readJSON('./report2.json'),
-    noNewErrors = fs.readJSON('./report3.json'),
-    newErrorsAndFiles = fs.readJSON('./report4.json'),
-    promises = [error, newErrors, noNewErrors, newErrorsAndFiles];
-
-Promise.all(promises).then((result) => {
-
+Promise.all().then((result) => {
+  console.log('test ');
 });
 
 function diffMessages (messages) {
-
+  console.log('test');
 }
 
 function newErrorFiles () {
-
+  console.log('test');
 }
