@@ -3,6 +3,7 @@ const sh = require('shelljs'),
       fs = require('fs-extra'),
       basePackagePath = path.resolve(__dirname, '..'),
       fixturePath = path.resolve(__dirname, 'fixtures'),
+      resultFixturePath = path.resolve(__dirname, 'fixtures', 'result'),
       readJSON = fs.readJSONSync;
 
 let prepareInput,
@@ -106,7 +107,8 @@ describe('Смок тест модуля работы с eslint', () => {
     });
 
     describe('файлы идентичны', function () {
-      let resultJSON;
+      let resultJSON,
+          expectedJSON;
 
       afterEach(() => {
         resultJSON = undefined;
@@ -115,9 +117,9 @@ describe('Смок тест модуля работы с eslint', () => {
       it('пусты', function () {
         prepareInput('empty');
         runApp();
-
+        expectedJSON = readJSON(`${resultFixturePath}/empty.json`);
         resultJSON = readJSON(`${basePackagePath}/result.json`);
-        expect(resultJSON.length).toEqual(0);
+        expect(resultJSON).toEqual(0);
       });
 
       it('одинаковы', function () {
