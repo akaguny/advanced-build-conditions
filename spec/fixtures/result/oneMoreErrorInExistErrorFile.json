@@ -3,54 +3,6 @@
     "filePath": "/home/alexey/IdeaProjects/eslint-teamcity-fork/src/formatter.js",
     "messages": [
       {
-        "ruleId": "quotes",
-        "severity": 2,
-        "message": "Strings must use singlequote.",
-        "line": 82,
-        "column": 25,
-        "nodeType": "Literal",
-        "source": "      var userMessage = \"line \" + (message.line || 0) +",
-        "fix": {
-          "range": [
-            2734,
-            2741
-          ],
-          "text": "'line '"
-        }
-      },
-      {
-        "ruleId": "indent",
-        "severity": 2,
-        "message": "Expected indentation of 6 spaces but found 8.",
-        "line": 86,
-        "column": 9,
-        "nodeType": "IfStatement",
-        "source": "        if (message.fatal || message.severity === 2) {",
-        "fix": {
-          "range": [
-            2904,
-            2912
-          ],
-          "text": "      "
-        }
-      },
-      {
-        "ruleId": "indent",
-        "severity": 2,
-        "message": "Expected indentation of 4 spaces but found 6.",
-        "line": 93,
-        "column": 7,
-        "nodeType": "BlockStatement",
-        "source": "      });",
-        "fix": {
-          "range": [
-            3125,
-            3131
-          ],
-          "text": "    "
-        }
-      },
-      {
         "ruleId": "indent",
         "severity": 2,
         "message": "Expected indentation of 4 spaces but found 6.",
@@ -67,7 +19,7 @@
         }
       }
     ],
-    "errorCount": 4,
+    "errorCount": 1,
     "warningCount": 0,
     "source": "/**\r\n * @fileoverview TeamCity report formatter plugin for ESLint\r\n * @author Andre Ogle\r\n */\r\n\r\n'use strict';\r\n\r\n//------------------------------------------------------------------------------\r\n// Helpers\r\n//------------------------------------------------------------------------------\r\n\r\n/**\r\n * Escape special characters with the respective TeamCity escaping.\r\n * See below link for list of special characters:\r\n * https://confluence.jetbrains.com/display/TCD9/Build+Script+Interaction+with+TeamCity\r\n * @param {string} str An error message to display in TeamCity.\r\n * @returns {string} An error message formatted for display in TeamCity\r\n */\r\nfunction escapeTeamCityString(str) {\r\n  if (!str) {\r\n    return '';\r\n  }\r\n\r\n  return str.replace(/\\|/g, '||')\r\n    .replace(/\\'/g, '|\\'')\r\n    .replace(/\\n/g, '|n')\r\n    .replace(/\\r/g, '|r')\r\n    .replace(/\\u0085/g, '|x') // TeamCity 6\r\n    .replace(/\\u2028/g, '|l') // TeamCity 6\r\n    .replace(/\\u2029/g, '|p') // TeamCity 6\r\n    .replace(/\\[/g, '|[')\r\n    .replace(/\\]/g, '|]');\r\n}\r\n\r\n/**\r\n * safe get object value\r\n * @param {Object} object - object to parse\r\n * @param {String} property keypath with separetor\r\n * @param {String} [separator='.'] dilimeter\r\n * @returns {*|null} any value in object\r\n * @example: common.parseObjectAndGetParameter({\"Client\": {\"ballance\": 654.55}}, \"Client:Ballance\", \":\")\r\n * // 654.55\r\n */\r\nfunction parseObject(object, property, separator) {\r\n  var scopeArray = property.split(separator || '.');\r\n\r\n  return scopeArray.reduce(function(item, i) {\r\n    return item[i];\r\n  }, object);\r\n}\r\n\r\n//------------------------------------------------------------------------------\r\n// Public Interface\r\n//------------------------------------------------------------------------------\r\nmodule.exports = function(results) {\r\n  var that = this;\r\n  var reportName = parseObject(that, 'data.options.teamcityEnvKeys.reportName') || 'ESLint Violations';\r\n  var output = '';\r\n  var errorCount = 0;\r\n  var warningCount = 0;\r\n  var buildStatisticKeys = {};\r\n\r\n  buildStatisticKeys.errorCount = parseObject(that, 'data.options.teamcityEnvKeys.errorCount') || 'ESLintErrorCount';\r\n  buildStatisticKeys.warningCount = parseObject(that, 'data.options.teamcityEnvKeys.warningCount') || 'ESLintWarningCount';\r\n  output += '##teamcity[testSuiteStarted name=\\'' + reportName + '\\']\\n';\r\n\r\n  results.forEach(function(result) {\r\n    var messages = result.messages;\r\n\r\n\r\n    if (messages.length === 0) {\r\n      return;\r\n    }\r\n\r\n    output += '##teamcity[testStarted name=\\'' + reportName + ': ' +\r\n      escapeTeamCityString(result.filePath) + '\\']\\n';\r\n\r\n    var errorsList = [];\r\n    var warningsList = [];\r\n\r\n    messages.forEach(function(message) {\r\n      var userMessage = \"line \" + (message.line || 0) +\r\n          ', col ' + (message.column || 0) +\r\n          ', ' + message.message + (message.ruleId ? ' (' + message.ruleId + ')' : '');\r\n\r\n        if (message.fatal || message.severity === 2) {\r\n          errorsList.push(userMessage);\r\n          errorCount++;\r\n        } else {\r\n          warningsList.push(userMessage);\r\n          warningCount++;\r\n        }\r\n      });\r\n\r\n    if (errorsList.length) {\r\n      output += '##teamcity[testFailed name=\\'' + reportName + ': ' +\r\n        escapeTeamCityString(result.filePath) + '\\' message=\\'' +\r\n        escapeTeamCityString(errorsList.join('\\n')) + '\\']\\n';\r\n    } else if (warningsList.length) {\r\n      debugger;\r\n      output += '##teamcity[testStdOut name=\\'' + reportName + ': ' +\r\n        escapeTeamCityString(result.filePath) + '\\' out=\\'warning: ' +\r\n        escapeTeamCityString(warningsList.join('\\n')) + '\\']\\n';\r\n    }\r\n    output += '##teamcity[testFinished name=\\'' + reportName + ': ' +\r\n      escapeTeamCityString(result.filePath) + '\\']\\n';\r\n  });\r\n\r\n  output += '##teamcity[testSuiteFinished name=\\'' + reportName + '\\']\\n';\r\n\r\n  output += '##teamcity[buildStatisticValue key=\\'' + buildStatisticKeys.errorCount + '\\' value=\\'' + errorCount +'\\' ]\\n';\r\n  output += '##teamcity[buildStatisticValue key=\\'' + buildStatisticKeys.warningCount + '\\' value=\\'' + warningCount +'\\' ]\\n';\r\n\r\n  return output;\r\n};\r\n"
   }
