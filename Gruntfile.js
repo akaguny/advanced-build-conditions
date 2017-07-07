@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     watch: {
-      files: ['*.js', '**/*.js', '!node_modules'],
+      files: ['spec/fixtures/**/*.json', '*.js', '**/*.js', '!node_modules', '!node_modules/**/*.*'],
       tasks: ['testDev'],
       options: {
         debounceDelay: 250
