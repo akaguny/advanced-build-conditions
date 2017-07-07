@@ -36,7 +36,7 @@ identInputForTest = (testCase) => {
       current = testCase;
       break;
     case 'onesLessErrorFile':
-      master = identInputForTest('oneMoreErrorFile').masterInputName;
+      master = identInputForTest('newErrorsAndFiles').masterInputName;
       current = error;
       break;
     case 'oneMoreErrorInExistErrorFile':
@@ -161,21 +161,23 @@ describe('Смок тест модуля работы с eslint', () => {
         });
 
         it('уменьшение количества ошибок', () => {
-          let resultFixtureName = 'empty';
+          let resultFixtureName = 'onesLessErrorInExistErrorFile';
           prepareInput('onesLessErrorInExistErrorFile');
           runApp();
 
-          expectedJSON = readJSON(`${resultFixturePath}/onesLessErrorInExistErrorFile.json`);
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
+          expect(resultJSON).toEqual(expectedJSON);
         });
 
         it('уменьшение количества файлов с ошибками', () => {
-          let resultFixtureName = 'empty';
-          prepareInput('onesLessErrorInExistErrorFile');
+          let resultFixtureName = 'onesLessErrorFile';
+          prepareInput('onesLessErrorFile');
           runApp();
 
-          expectedJSON = readJSON(`${resultFixturePath}/onesLessErrorInExistErrorFile.json`);
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
+          expect(resultJSON).toEqual(expectedJSON);
         });
       });
     });

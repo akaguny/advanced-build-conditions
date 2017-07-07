@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/** run from commandline:
+ * node index.js
+ * -master /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json
+ * -current /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json
+ */
 /* eslint-env es6:true */
 'use-strict';
 const fs = require('fs-extra'),
@@ -13,7 +18,7 @@ let currentJSON,
 
 if (require.main === module) {
   currentJSON = fs.readJSON(`${procArg[procArg.indexOf('-current') + 1]}`);
-  masterJSON = fs.readJSON(`${procArg[procArg.indexOf('-master') + 1]}`),
+  masterJSON = fs.readJSON(`${procArg[procArg.indexOf('-master') + 1]}`);
   resultJSONPath = path.resolve(path.dirname(procArg[1]), `result.json`);
   main(masterJSON, currentJSON);
 } else {
@@ -46,6 +51,7 @@ function main (masterJSON, currentJSON) {
  */
 function getLintResultWithUnicalNewMessages (lintResultMaster, lintResultCurrent) {
   let unicalNewMessages = clone(lintResultCurrent),
+      result,
       warningCount = 0,
       errorCount = 0;
 
@@ -65,7 +71,10 @@ function getLintResultWithUnicalNewMessages (lintResultMaster, lintResultCurrent
   unicalNewMessages.warningCount = warningCount;
   unicalNewMessages.errorCount = errorCount;
 
-  return unicalNewMessages;
+  if (unicalNewMessages.messages.length > 0) {
+    result = unicalNewMessages;
+  }
+  return result;
 }
 
 /**
@@ -76,8 +85,9 @@ function getLintResultWithUnicalNewMessages (lintResultMaster, lintResultCurrent
  */
 function getUnicalNewErrors (errorsMapMaster, errorsMapCurrent) {
   let errorsMapMasterEmpty = errorsMapMaster.size === 0,
-      errorsMapCurrentEmpty = errorsMapMaster.size === 0,
-      unicalNewErrors = new Map();
+      errorsMapCurrentEmpty = errorsMapCurrent.size === 0,
+      unicalNewErrors = new Map(),
+      lintResultWithUnicalNewMessages;
 
   if (!errorsMapCurrentEmpty) {
     if (errorsMapMasterEmpty) {
@@ -88,8 +98,10 @@ function getUnicalNewErrors (errorsMapMaster, errorsMapCurrent) {
             errorsInFileIsIden = isEqual(value, errorsMapMaster.get(key));
 
         if (masterHasErrorInFile && !errorsInFileIsIden) {
-          unicalNewErrors.set(key, getLintResultWithUnicalNewMessages(errorsMapMaster.get(key),
-            value));
+          lintResultWithUnicalNewMessages = getLintResultWithUnicalNewMessages(errorsMapMaster.get(key), value);
+          if (lintResultWithUnicalNewMessages) {
+            unicalNewErrors.set(key, lintResultWithUnicalNewMessages);
+          }
         } else if (!errorsInFileIsIden) {
           unicalNewErrors.set(key, value);
         }
