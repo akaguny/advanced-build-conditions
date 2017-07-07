@@ -31,7 +31,7 @@ identInputForTest = (testCase) => {
       master = error;
       current = error;
       break;
-    case 'oneMoreErrorFile':
+    case 'newErrorsAndFiles':
       master = error;
       current = testCase;
       break;
@@ -54,6 +54,12 @@ identInputForTest = (testCase) => {
     default:
       break;
   }
+
+  console.log({
+    masterInputName: master,
+    currentInputName: current
+  });
+
   return {
     masterInputName: master,
     currentInputName: current
@@ -77,9 +83,8 @@ prepareInput = (testCase) => {
  * Запуск приложения
  */
 runApp = () => {
-  sh.exec(`cd ${basePackagePath}; node index.js
-       -master ${__dirname}/fromMaster.json
-       -merge ${__dirname}/fromCurrent.json`);
+  sh.exec(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+  console.log(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`)
 };
 
 /**
@@ -88,6 +93,7 @@ runApp = () => {
 clearInputForTest = () => {
   sh.rm(`${basePackagePath}/fromCurrent.json`);
   sh.rm(`${basePackagePath}/fromMaster.json`);
+  sh.rm(`${basePackagePath}/result.json`);
 };
 
 describe('Смок тест модуля работы с eslint', () => {
@@ -96,11 +102,12 @@ describe('Смок тест модуля работы с eslint', () => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
     });
 
-    afterAll(() => {
+    afterEach(() => {
       clearInputForTest();
     });
 
     it('создан результирующий файл', () => {
+      prepareInput('empty');
       runApp();
 
       expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
@@ -119,43 +126,55 @@ describe('Смок тест модуля работы с eslint', () => {
         runApp();
         expectedJSON = readJSON(`${resultFixturePath}/empty.json`);
         resultJSON = readJSON(`${basePackagePath}/result.json`);
-        expect(resultJSON).toEqual(0);
+        expect(resultJSON).toEqual([]);
       });
 
       it('одинаковы', function () {
+        let resultFixtureName = 'empty';
         prepareInput('equal');
         runApp();
 
         resultJSON = readJSON(`${basePackagePath}/result.json`);
-        expect(resultJSON.length).toEqual(0);
+        expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+        expect(resultJSON).toEqual(expectedJSON);
       });
 
       describe('не одинаковы', function () {
         it('новый файл с ошибками', () => {
-          prepareInput('oneMoreErrorFile');
+          let resultFixtureName = 'newErrorsAndFiles';
+          prepareInput(resultFixtureName);
           runApp();
-
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+          expect(resultJSON).toEqual(expectedJSON);
         });
 
         it('новые ошибки в файле, в котором уже были ошибки', () => {
-          prepareInput('oneMoreErrorInExistErrorFile');
+          let resultFixtureName = 'oneMoreErrorInExistErrorFile';
+          prepareInput(resultFixtureName);
           runApp();
-
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
+			    
+          expect(resultJSON).toEqual(expectedJSON);
         });
 
         it('уменьшение количества ошибок', () => {
+          let resultFixtureName = 'empty';
           prepareInput('onesLessErrorInExistErrorFile');
           runApp();
 
+          expectedJSON = readJSON(`${resultFixturePath}/onesLessErrorInExistErrorFile.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
         });
 
         it('уменьшение количества файлов с ошибками', () => {
-          prepareInput('onesLessErrorFile');
+          let resultFixtureName = 'empty';
+          prepareInput('onesLessErrorInExistErrorFile');
           runApp();
 
+          expectedJSON = readJSON(`${resultFixturePath}/onesLessErrorInExistErrorFile.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
         });
       });
