@@ -1,10 +1,11 @@
 {
-  "name": "teamcity-parameters-set",
+  "name": "buildFailedConditions",
   "version": "1.0.0",
-  "description": "Пакет для установки параметров teamcity",
+  "description": "Набор инструментов для выставления условий падения сборки",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "testDev": "grunt testDev"
   },
   "keywords": [
     "teamcity"
@@ -27,7 +28,7 @@
   },
   "dependencies": {
     "fs-extra": "^3.0.1",
-    "lodash.isequal": "^4.5.0",
-    "teamcity-service-messages": "^0.1.8"
+    "lodash.clone": "^4.5.0",
+    "lodash.isequal": "^4.5.0"
   }
 }
