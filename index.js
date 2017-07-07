@@ -11,13 +11,13 @@ let currentJSON,
     masterJSON,
     resultJSONPath;
 
-if(require.main === module){
+if (require.main === module) {
   currentJSON = fs.readJSON(`${procArg[procArg.indexOf('-current') + 1]}`);
   masterJSON = fs.readJSON(`${procArg[procArg.indexOf('-master') + 1]}`),
   resultJSONPath = path.resolve(path.dirname(procArg[1]), `result.json`);
   main(masterJSON, currentJSON);
 } else {
-  module.exports = main
+  module.exports = main;
 }
 
 // FIXME: убрать за флаг, т.к. используется только для отладки
@@ -25,17 +25,17 @@ console.log(`${procArg[procArg.indexOf('-current') + 1]}`);
 console.log(`${procArg[procArg.indexOf('-master') + 1]}`);
 console.log(resultJSONPath);
 
-function main(masterJSON, currentJSON){
+function main (masterJSON, currentJSON) {
   return Promise.all([masterJSON, currentJSON]).then((resultObjectArrays) => {
-  return {
-    master: customEslintResultsIterator(resultObjectArrays[0]),
-    current: customEslintResultsIterator(resultObjectArrays[1])
-  };
-}).then((resultMapsObject) => {
-  return getUnicalNewErrors(resultMapsObject.master, resultMapsObject.current);
-}).then((unicalErrors) => {
-  writeResult(unicalErrors, resultJSONPath);
-})
+    return {
+      master: customEslintResultsIterator(resultObjectArrays[0]),
+      current: customEslintResultsIterator(resultObjectArrays[1])
+    };
+  }).then((resultMapsObject) => {
+    return getUnicalNewErrors(resultMapsObject.master, resultMapsObject.current);
+  }).then((unicalErrors) => {
+    writeResult(unicalErrors, resultJSONPath);
+  });
 };
 
 /**
@@ -90,7 +90,7 @@ function getUnicalNewErrors (errorsMapMaster, errorsMapCurrent) {
         if (masterHasErrorInFile && !errorsInFileIsIden) {
           unicalNewErrors.set(key, getLintResultWithUnicalNewMessages(errorsMapMaster.get(key),
             value));
-        } else if (!errorsInFileIsIden){
+        } else if (!errorsInFileIsIden) {
           unicalNewErrors.set(key, value);
         }
       });

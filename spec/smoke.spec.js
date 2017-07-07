@@ -84,7 +84,7 @@ prepareInput = (testCase) => {
  */
 runApp = () => {
   sh.exec(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
-  console.log(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`)
+  console.log(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
 };
 
 /**
@@ -156,7 +156,7 @@ describe('Смок тест модуля работы с eslint', () => {
           runApp();
           expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
-			    
+
           expect(resultJSON).toEqual(expectedJSON);
         });
 

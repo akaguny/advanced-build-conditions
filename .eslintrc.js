@@ -11,8 +11,7 @@ module.exports = {
   },
   'rules': {
     'linebreak-style': [
-      'error',
-      'windows',
+      'error'
     ],
     // Настройка отступов
     "indent": [
