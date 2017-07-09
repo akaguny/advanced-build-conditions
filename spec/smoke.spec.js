@@ -45,7 +45,7 @@ identInputForTest = (testCase) => {
       break;
     case 'onesLessErrorInExistErrorFile':
       master = identInputForTest('oneMoreErrorInExistErrorFile').masterInputName;
-      current = testCase;
+      current = error;
       break;
     case 'empty':
       master = testCase;
@@ -83,8 +83,7 @@ prepareInput = (testCase) => {
  * Запуск приложения
  */
 runApp = () => {
-  sh.exec(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
-  console.log(`cd ${basePackagePath}; node index.js -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+  sh.exec(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
 };
 
 /**
@@ -161,7 +160,7 @@ describe('Смок тест модуля работы с eslint', () => {
         });
 
         it('уменьшение количества ошибок', () => {
-          let resultFixtureName = 'onesLessErrorInExistErrorFile';
+          let resultFixtureName = 'empty';
           prepareInput('onesLessErrorInExistErrorFile');
           runApp();
 
