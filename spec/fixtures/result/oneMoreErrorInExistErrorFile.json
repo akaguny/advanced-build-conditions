@@ -1,13 +1,13 @@
 [
   {
-    "filePath": "/home/alexey/IdeaProjects/eslint-teamcity-fork/src/formatter.js",
+    "filePath": "fileOne",
     "messages": [
       {
         "ruleId": "indent",
         "severity": 2,
         "message": "Expected indentation of 4 spaces but found 6.",
-        "line": 999,
-        "column": 777,
+        "line": 0,
+        "column": 10,
         "nodeType": "BlockStatement",
         "source": "      });",
         "fix": {
@@ -15,7 +15,7 @@
             3127,
             3133
           ],
-          "text": "666"
+          "text": "test"
         }
       }
     ],

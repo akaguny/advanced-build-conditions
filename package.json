@@ -27,6 +27,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "eslint-teamcity": "git+https://github.com/akaguny/eslint-teamcity.git",
     "fs-extra": "^3.0.1",
     "lodash.clone": "^4.5.0",
     "lodash.isequal": "^4.5.0"

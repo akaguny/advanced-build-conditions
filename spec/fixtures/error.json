@@ -1,6 +1,6 @@
 [
   {
-    "filePath": "/home/alexey/IdeaProjects/eslint-teamcity-fork/src/formatter.js",
+    "filePath": "fileOne",
     "messages": [
       {
         "ruleId": "indent",
