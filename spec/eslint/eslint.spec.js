@@ -1,9 +1,9 @@
 const sh = require('shelljs'),
       path = require('path'),
       fs = require('fs-extra'),
-      basePackagePath = path.resolve(__dirname, '..'),
-      fixturePath = path.resolve(__dirname, 'fixtures'),
-      resultFixturePath = path.resolve(__dirname, 'fixtures', 'result'),
+      basePackagePath = path.resolve(__dirname, '../..'),
+      fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
+      resultFixturePath = path.resolve(fixturePath, 'result'),
       readJSON = fs.readJSONSync;
 
 let prepareInput,
@@ -95,7 +95,7 @@ clearInputForTest = () => {
   sh.rm(`${basePackagePath}/result.json`);
 };
 
-describe('Смок тест модуля работы с eslint', () => {
+describe('eslint', () => {
   describe('исключающий мерж', () => {
     beforeAll(() => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
