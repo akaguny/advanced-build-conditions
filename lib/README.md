@@ -43,4 +43,8 @@ stash, но для этого нужно писать плагин для stash)
 модуль поддерживают два интерфейса, консольный и nodejs через require
 модуль получает на вход 
 
+teamcity rest
+решено не делать собственную обёртку для вызова api teamcity.
+был выбран [node-teamcity-api](https://github.com/peter-murray/node-teamcity-api)
+
 ##bitbucket
