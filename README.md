@@ -34,6 +34,12 @@ PR приветствуются, проверка codestyle и запуск юн
 по PR в репозиторий. Для локального запуска тестов и проверок codestyle необходимо запустить
 соответственно `npm test` и `npm codestyle`
 
+##Открытые вопросы
+Как спроектировать API для выбора пресетов сравнения параметров проверок а также добавления собственных
+* asserts/
+  * index.js - главный модуль к которому обращаются, по свичу выбирается пресет
+  * newEslintErrors.js - пресет с предопределёнными условиями, отдаёт false/true. false - проверка не прошла
+  true - прошла
 ##Полезные ссылки
 * [teamcity test service messages](https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-Supportedtestservicemessages)
 * [eslint-teamcity](https://www.npmjs.com/package/eslint-teamcity)
