@@ -1,5 +1,5 @@
 const path = require('path'),
-      basePackagePath = path.resolve(__dirname, '..'),
+      basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
       teamcityHost = 'https://***REMOVED***';
 
@@ -7,7 +7,7 @@ let tc;
 
 describe('teamcity', () => {
   beforeEach(() => {
-    tc = require(path.resolve(basePackagePath, 'teamcity'));
+    tc = require(path.resolve(basePackagePath, 'lib/teamcity'));
   });
 
   afterEach(() => {
@@ -26,13 +26,19 @@ describe('teamcity', () => {
     });
 
     it('поддердивает необходимое api', () => {
+      expect(tc.setCreditials).toBeDefined();
+
       expect(tc.setBuildStatus).toBeDefined();
 
       expect(tc.getBuildArtifact).toBeDefined();
 
       expect(tc.setBuildName).toBeDefined();
+    });
 
-      expect(tc.getPullRequestNumber).toBeDefined();
+    describe('позволяет', () => {
+      beforeEach(() => {
+        tc.setCreditials('teamcity', 'password');
+      });
     });
 
     describe('позволяет получать', () => {
@@ -60,7 +66,7 @@ describe('teamcity', () => {
         expect(process.stdout).toContain(`##teamcity[buildProblem desтзьcription='${testBuildProblem}' identity='']`);
       });
 
-      xit('статус сборки', () => {
+      it('статус сборки', () => {
         tc.setBuildStatus(`${testBuildStatus.failed}`, `${testBuildFailedReason}`);
 
         expect(process.stdout).toContain(`##teamcity[buildStatus status='${testBuildStatus.failed}' text='${testBuildFailedReason}']`);
