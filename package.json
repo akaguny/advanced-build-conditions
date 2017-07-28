@@ -1,7 +1,7 @@
 {
   "name": "buildFailedConditions",
   "version": "1.0.0",
-  "description": "Набор инструментов для выставления условий падения сборки",
+  "description": "Набор инструментов для выставления статуса сборки",
   "main": "index.js",
   "scripts": {
     "test": "jasmine",
