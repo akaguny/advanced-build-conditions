@@ -44,7 +44,10 @@ stash, но для этого нужно писать плагин для stash)
 модуль получает на вход 
 
 teamcity rest
-решено не делать собственную обёртку для вызова api teamcity.
-был выбран [node-teamcity-api](https://github.com/peter-murray/node-teamcity-api)
+~~решено не делать собственную обёртку для вызова api teamcity.~~
+~~был выбран [node-teamcity-api](https://github.com/peter-murray/node-teamcity-api).~~
+сделана своя обёртка для restAPI teamcity, умеющая только необходимый фуционал
+
+
 
 ##bitbucket
