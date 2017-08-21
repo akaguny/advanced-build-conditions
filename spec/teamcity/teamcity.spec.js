@@ -2,9 +2,7 @@
 const path = require('path'),
       basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
-      teamcityHost = 'http://localhost:8080',
-      fetch = require('node-fetch'),
-      request = require('request-promise-native');
+      teamcityHost = 'http://localhost:8080';
 
 let tc;
 
@@ -61,23 +59,11 @@ describe('teamcity', () => {
         expect(nock.pendingMocks()).toEqual([]);
       });
 
-      it('test', function () {
-        fetch(`${testHost}/display`).then(function () {
-          console.log('success');
-        }).catch(function () {
-          console.log('failed');
-        });
-      });
-
       describe('позволяет получать', () => {
         it('артефакт мастер сборки', () => {
           // https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
           nock(teamcityHost).get(/app\/rest\/builds\/.*\/artifacts\/content\/reports\.zip\/eslint.json/);
-          tc.getBuildArtifact(`${testMasterBuildName}`);
 
-          expect('buildArtifactURL').toEqual('anotherBuildArtifactURL');
-
-          expect(nock.pendingMocks()).toEqual([]);
         });
       });
 
