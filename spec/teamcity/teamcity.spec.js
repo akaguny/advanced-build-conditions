@@ -62,7 +62,7 @@ describe('teamcity', () => {
       describe('позволяет получать', () => {
         it('артефакт мастер сборки', () => {
           // https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
-          nock(teamcityHost).get(/app\/rest\/builds\/.*\/artifacts\/content\/reports\.zip\/eslint.json/);
+          nock(teamcityHost).get('repository/download/***REMOVED***/2041953:id/reports.zip%21/eslint.json');
 
         });
       });
