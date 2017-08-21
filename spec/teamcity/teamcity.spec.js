@@ -2,7 +2,8 @@
 const path = require('path'),
       basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
-      teamcityHost = 'http://localhost:8080';
+      teamcityHost = 'http://localhost:8080',
+      eslintReportJSON = require(`${basePackagePath}/spec/fixtures/error.json`);
 
 let tc;
 
@@ -23,7 +24,9 @@ describe('teamcity', () => {
           testUsername = 'teamcity',
           testPassword = 'password',
           testHost = 'http://localhost:8080',
-          testProjectId = 'testProjectId';
+          testProjectId = 'testProjectId',
+          testBuildName = 'pull-requests/2741'
+          testBuildId = 19994;
 
     it('подключен', () => {
       expect(tc).toBeDefined();
@@ -38,21 +41,30 @@ describe('teamcity', () => {
     });
 
     describe('в работе', () => {
+    beforeEach(() => {
+        nock(testHost).
+        get(`/httpAuth/app/rest/builds?locator=buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
+        .reply(200, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="${testBuildId}" buildTypeId="***REMOVED***" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://***REMOVED***/viewLog.html?buildId=1900030&amp;buildTypeId=***REMOVED***"/></builds>`);
+
+    // URL from https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
+    nock(testHost).get(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`)
+        .reply(200, eslintReportJSON);
+    });
+
       fit('использует входные данные', () => {
         let url;
 
         nock(testHost)
           .get(function (url) {
             expect(url).toEqual('/httpAuth/app/rest/builds');
-            return true;
+            return false;
           })
           .query(
             function (actualQueryObject) {
               expect(actualQueryObject.locator).toEqual(`buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
-              console.log(`actualQueryObject:,`, actualQueryObject);
-              return true;
+              return false;
             }
-          ).reply(200, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="1900030" buildTypeId="***REMOVED***" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://***REMOVED***/viewLog.html?buildId=1900030&amp;buildTypeId=***REMOVED***"/></builds>');
+          );
 
         tc.init({login: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName);
 
@@ -60,10 +72,15 @@ describe('teamcity', () => {
       });
 
       describe('позволяет получать', () => {
-        it('артефакт мастер сборки', () => {
-          // https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
-          nock(teamcityHost).get('repository/download/***REMOVED***/2041953:id/reports.zip%21/eslint.json');
-
+        fit('артефакт мастер сборки', () => {
+    nock(testHost)
+        .get(function (url) {
+            expect(url).toEqual(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`);
+            return false;
+        });
+            tc.getBuildArtifact().then(() => {
+                expect(require(`${basePackagePath}/eslint-eport.json`)).toEqual(eslintReportJSON);
+            });
         });
       });
 
