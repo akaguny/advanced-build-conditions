@@ -1,7 +1,10 @@
+// .reply(200, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><testOccurrences count="0" href="https://***REMOVED***/app/rest/testOccurrences/?locator=build:%28buildType:%28id:***REMOVED***%29,revision:latest%29"/>');
 const path = require('path'),
       basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
-      teamcityHost = 'https://***REMOVED***';
+      teamcityHost = 'http://localhost:8080',
+      fetch = require('node-fetch'),
+      request = require('request-promise-native');
 
 let tc;
 
@@ -15,14 +18,13 @@ describe('teamcity', () => {
   });
 
   describe('Модуль', () => {
-    const testBuildName = 'testBuildName',
-          testMasterBuildName = '1.12.0/develop',
+    const testMasterBuildName = '1.12.0/develop',
           testBuildStatus = 'Failed',
           testBuildFailedReason = 'It`s not good build',
           testBuildProblem = 'It`s real big problem',
           testUsername = 'teamcity',
           testPassword = 'password',
-          testHost = 'localhost:8010',
+          testHost = 'http://localhost:8080',
           testProjectId = 'testProjectId';
 
     it('подключен', () => {
@@ -38,12 +40,33 @@ describe('teamcity', () => {
     });
 
     describe('в работе', () => {
-      beforeEach(() => {
-        tc.init({login: testUsername, pasword: testPassword, host: testHost, projectId: testProjectId},testMasterBuildName);
+      fit('использует входные данные', () => {
+        let url;
+
+        nock(testHost)
+          .get(function (url) {
+            expect(url).toEqual('/httpAuth/app/rest/builds');
+            return true;
+          })
+          .query(
+            function (actualQueryObject) {
+              expect(actualQueryObject.locator).toEqual(`buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
+              console.log(`actualQueryObject:,`, actualQueryObject);
+              return true;
+            }
+          ).reply(200, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="1900030" buildTypeId="***REMOVED***" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://***REMOVED***/viewLog.html?buildId=1900030&amp;buildTypeId=***REMOVED***"/></builds>');
+
+        tc.init({login: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName);
+
+        expect(nock.pendingMocks()).toEqual([]);
       });
 
-      it('использует входные данные', () => {
-        nock(teamcityHost)
+      it('test', function () {
+        fetch(`${testHost}/display`).then(function () {
+          console.log('success');
+        }).catch(function () {
+          console.log('failed');
+        });
       });
 
       describe('позволяет получать', () => {
