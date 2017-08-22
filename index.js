@@ -36,7 +36,7 @@ function getCurrentMode (mainArgs) {
 
   for (let mode in allowedModes) {
     if (mainArgs.indexOf(mode) === -1) {
-      //TODO: вынести сообщения об ошибках в хелпер
+      // TODO: вынести сообщения об ошибках в хелпер
       throw new Error(`Поддерживаемый режим работы не передан
        ${Object.keys(allowedModes)}`);
     } else {
@@ -77,7 +77,7 @@ function prepareInput (mode, mainArgs) {
       currentJSON = fs.readJSON(`${mainArgs[mainArgs.indexOf('-current') + 1]}`);
       masterJSON = fs.readJSON(`${mainArgs[mainArgs.indexOf('-master') + 1]}`);
       resultJSONPath = path.resolve(path.dirname(mainArgs[1]), `result.json`);
-      //FIXME возвращать в виде объекта, использовать деструктуризацию
+      // FIXME возвращать в виде объекта, использовать деструктуризацию
       input = [masterJSON, currentJSON, resultJSONPath];
   }
 
