@@ -35,5 +35,6 @@ module.exports = {
     ],
     'one-var': ["error", "always"],
     'func-style': ['error', 'declaration', {'allowArrowFunctions': true}],
+      'jasmine/no-disabled-tests': 0,
   },
 };
