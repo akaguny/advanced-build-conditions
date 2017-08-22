@@ -1,9 +1,12 @@
-# failed conditions
+# buld failed conditions
 Решение для выставление статусов сборки ct(continues test) на основе дополнительных
 проверок, основанных на результатах проверок unit тестов, линтеров и т.д.
 Архитектура решения подразумевает модульность, которая должна позволить использовать
 различные обработчики, выносить их в отдельные npm пакеты, развивать и поддерживать
 как отдельные приложения.
+![Flow](./img/flow.jpg)
+![Before](./img/before.jpg)
+![After](./img/after.jpg)
 
 ##Модули
 ###Teamcity
@@ -41,6 +44,18 @@ PR приветствуются, проверка codestyle и запуск юн
   * index.js - главный модуль к которому обращаются, по свичу выбирается пресет
   * newEslintErrors.js - пресет с предопределёнными условиями, отдаёт false/true. false - проверка не прошла
   true - прошла
+  
+###TODO:
+teamcity module - OK
+eslint module - OK
+TODO: require интерфейс index.js
+TODO: тесты на require интерфейс index.js
+При мерже не формируется result.json в нужно йпапке почему-то
+TODO: приложение не будет работать если в путях есть пробелы
+  
+##Внимание - известные ограничения
+Если в путях присутствуют пробелы, то модуль работать не будет!
+  
 ##Полезные ссылки
 * [teamcity test service messages](https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-Supportedtestservicemessages)
 * [eslint-teamcity](https://www.npmjs.com/package/eslint-teamcity)
