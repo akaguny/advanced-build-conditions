@@ -40,6 +40,8 @@ describe('teamcity', () => {
       expect(tc.setBuildStatus).toBeDefined();
 
       expect(tc.getBuildArtifact).toBeDefined();
+
+      expect(tc.prepareEslintReportForTeamcity).toBeDefined();
     });
 
     describe('в работе', () => {
