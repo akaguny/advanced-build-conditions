@@ -7,6 +7,8 @@ const path = require('path'),
 
 let tc;
 
+nock.disableNetConnect();
+
 describe('teamcity', () => {
   beforeEach(() => {
     tc = require(path.resolve(basePackagePath, 'lib/teamcity'));
@@ -25,7 +27,7 @@ describe('teamcity', () => {
           testPassword = 'password',
           testHost = 'http://localhost:8080',
           testProjectId = 'testProjectId',
-          testBuildName = 'pull-requests/2741'
+          testBuildName = 'pull-requests/2741',
           testBuildId = 19994;
 
     it('подключен', () => {
@@ -41,17 +43,22 @@ describe('teamcity', () => {
     });
 
     describe('в работе', () => {
-    beforeEach(() => {
-        nock(testHost).
-        get(`/httpAuth/app/rest/builds?locator=buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
-        .reply(200, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="${testBuildId}" buildTypeId="***REMOVED***" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://***REMOVED***/viewLog.html?buildId=1900030&amp;buildTypeId=***REMOVED***"/></builds>`);
+      beforeEach(() => {
+        nock(testHost)
+          .persist()
+          .get(`/httpAuth/app/rest/builds?locator=buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
+          .reply(200, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:***REMOVED***,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="${testBuildId}" buildTypeId="***REMOVED***" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://***REMOVED***/viewLog.html?buildId=1900030&amp;buildTypeId=***REMOVED***"/></builds>`);
 
-    // URL from https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
-    nock(testHost).get(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`)
-        .reply(200, eslintReportJSON);
-    });
+        // URL from https://confluence.jetbrains.com/display/TCD10/REST+API#RESTAPI-BuildArtifacts
+        nock(testHost).get(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`)
+          .reply(200, eslintReportJSON);
+      });
 
-      fit('использует входные данные', () => {
+      afterEach(() => {
+        nock.cleanAll();
+      });
+
+      it('использует входные данные', () => {
         let url;
 
         nock(testHost)
@@ -61,26 +68,24 @@ describe('teamcity', () => {
           })
           .query(
             function (actualQueryObject) {
-              expect(actualQueryObject.locator).toEqual(`buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`)
+              expect(actualQueryObject.locator).toEqual(`buildType:${testProjectId},branch:name:${testMasterBuildName},count:1,status:SUCCESS,state:finished`);
               return false;
             }
           );
 
         tc.init({login: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName);
-
-        expect(nock.pendingMocks()).toEqual([]);
       });
 
       describe('позволяет получать', () => {
-        fit('артефакт мастер сборки', () => {
-    nock(testHost)
-        .get(function (url) {
-            expect(url).toEqual(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`);
-            return false;
-        });
-            tc.getBuildArtifact().then(() => {
-                expect(require(`${basePackagePath}/eslint-eport.json`)).toEqual(eslintReportJSON);
+        it('артефакт мастер сборки', () => {
+          nock(testHost)
+            .get(function (url) {
+              expect(url).toEqual(`repository/download/${testProjectId}/${testBuildId}:id/reports.zip%21/eslint.json`);
+              return false;
             });
+          tc.getBuildArtifact().then(() => {
+            expect(require(`${basePackagePath}/eslint-eport.json`)).toEqual(eslintReportJSON);
+          });
         });
       });
 
@@ -88,13 +93,13 @@ describe('teamcity', () => {
         it('имя сборки', () => {
           tc.setBuildName(`${testBuildName}`);
 
-          expect(process.stdout).toContain(`anyIsn't contain in stdout, ${testBuildName}`);
+          expect(process.stdout).toContain(`##teamcity[buildNumber '${testBuildName}']`);
         });
 
         it('проблему сборки', () => {
           tc.setBuildProblem(testBuildProblem);
 
-          expect(process.stdout).toContain(`##teamcity[buildProblem desтзьcription='${testBuildProblem}' identity='']`);
+          expect(process.stdout).toContain(`##teamcity[buildProblem description='${testBuildProblem}' identity='']`);
         });
 
         it('статус сборки', () => {
