@@ -9,7 +9,7 @@ const sh = require('shelljs'),
 let prepareInput,
     identInputForTest,
     clearInputForTest,
-    runApp;
+    runAppFromConsole;
 /**
  * Идентификация входных данных
  * на основе кейса определяет имена json файлов с тестовыми данными
@@ -81,11 +81,12 @@ prepareInput = (testCase) => {
 
 /**
  * Запуск приложения
+ * @param {string} [specifyTempPath] - специфичный путь для хранения результата
  */
-runApp = () => {
+runAppFromConsole = (specifyTempPath) => {
   console.log(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
   sh.exec(`cd ${basePackagePath}`);
-  sh.exec(`node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+  sh.exec(`node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json ${specifyTempPath ? '-result ' + specifyTempPath : ''}`);
 };
 
 /**
@@ -97,7 +98,7 @@ clearInputForTest = () => {
   sh.rm(`${basePackagePath}/result.json`);
 };
 
-xdescribe('eslint', () => {
+fdescribe('eslint', () => {
   describe('исключающий мерж', () => {
     beforeAll(() => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
@@ -107,11 +108,20 @@ xdescribe('eslint', () => {
       clearInputForTest();
     });
 
-    it('создан результирующий файл', () => {
-      prepareInput('empty');
-      runApp();
+    describe('создан результирующий файл', () => {
+      it('в папке от куда вызывается скрипт', () => {
+          prepareInput('empty');
+          runAppFromConsole();
 
-      expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+          expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+      });
+
+      it('в указанной папке', () => {
+          prepareInput('empty');
+          runAppFromConsole(basePackagePath);
+
+          expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+      })
     });
 
     describe('файлы идентичны', function () {
@@ -124,7 +134,7 @@ xdescribe('eslint', () => {
 
       it('пусты', function () {
         prepareInput('empty');
-        runApp();
+        runAppFromConsole();
         expectedJSON = readJSON(`${resultFixturePath}/empty.json`);
         resultJSON = readJSON(`${basePackagePath}/result.json`);
 
@@ -134,7 +144,7 @@ xdescribe('eslint', () => {
       it('одинаковы', function () {
         let resultFixtureName = 'empty';
         prepareInput('equal');
-        runApp();
+        runAppFromConsole();
 
         resultJSON = readJSON(`${basePackagePath}/result.json`);
         expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
@@ -146,7 +156,7 @@ xdescribe('eslint', () => {
         it('новый файл с ошибками', () => {
           let resultFixtureName = 'newErrorsAndFiles';
           prepareInput(resultFixtureName);
-          runApp();
+          runAppFromConsole();
           expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
 
@@ -156,7 +166,7 @@ xdescribe('eslint', () => {
         it('новые ошибки в файле, в котором уже были ошибки', () => {
           let resultFixtureName = 'oneMoreErrorInExistErrorFile';
           prepareInput(resultFixtureName);
-          runApp();
+          runAppFromConsole();
           expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
 
@@ -166,7 +176,7 @@ xdescribe('eslint', () => {
         it('уменьшение количества ошибок', () => {
           let resultFixtureName = 'empty';
           prepareInput('onesLessErrorInExistErrorFile');
-          runApp();
+          runAppFromConsole();
 
           expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
@@ -177,7 +187,7 @@ xdescribe('eslint', () => {
         it('уменьшение количества файлов с ошибками', () => {
           let resultFixtureName = 'onesLessErrorFile';
           prepareInput('onesLessErrorFile');
-          runApp();
+          runAppFromConsole();
 
           expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
           resultJSON = readJSON(`${basePackagePath}/result.json`);
@@ -185,6 +195,39 @@ xdescribe('eslint', () => {
           expect(resultJSON).toEqual(expectedJSON);
         });
       });
+    });
+  });
+
+  describe('Интерфейс модуля', () => {
+    let buildFailedConditions;
+
+    beforeEach(() => {
+      buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
+    });
+
+    it('реализует экспорт', () => {
+      expect(typeof buildFailedConditions).toEqual('function');
+    });
+
+    it('релизует мерж', () => {
+      let resultFixtureName = 'onesLessErrorFile';
+      prepareInput('onesLessErrorFile');
+      console.dir({
+        mode: 'eslint',
+        currentJson: `${basePackagePath}/fromCurrent.json`,
+        masterJSON: `${basePackagePath}/fromMaster.json`
+      });
+      buildFailedConditions({
+        mode: 'eslint',
+        currentJson: `${basePackagePath}/fromCurrent.json`,
+        masterJSON: `${basePackagePath}/fromMaster.json`,
+        resultJSON: `${basePackagePath}/result.json`
+      });
+
+      expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+      resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+      expect(resultJSON).toEqual(expectedJSON);
     });
   });
 });
