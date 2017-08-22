@@ -97,7 +97,7 @@ clearInputForTest = () => {
   sh.rm(`${basePackagePath}/result.json`);
 };
 
-fdescribe('eslint', () => {
+describe('eslint', () => {
   describe('исключающий мерж', () => {
     beforeAll(() => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
