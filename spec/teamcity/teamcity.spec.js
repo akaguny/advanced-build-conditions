@@ -58,8 +58,6 @@ describe('teamcity', () => {
       });
 
       it('использует входные данные', () => {
-        let url;
-
         nock(testHost)
           .get(function (url) {
             expect(url).toEqual('/httpAuth/app/rest/builds');
