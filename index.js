@@ -14,9 +14,13 @@ const fs = require('fs-extra'),
         eslint: 'eslint'
       };
 
+let currentExecutionMode = '';
+
 if (require.main === module) {
+  currentExecutionMode = 'console';
   main(procArg.slice(1));
 } else {
+  currentExecutionMode = 'module';
   module.exports = main;
 }
 
@@ -35,7 +39,8 @@ function getCurrentMode (mainArgs) {
   let currentMode;
 
   for (let mode in allowedModes) {
-    if (mainArgs.indexOf(mode) === -1) {
+    if ((currentExecutionMode === 'console' && mainArgs.indexOf(mode) === -1) ||
+        (mainArgs.mode && mainArgs.mode.indexOf(mode) === -1)) {
       // TODO: вынести сообщения об ошибках в хелпер
       throw new Error(`Поддерживаемый режим работы не передан
        ${Object.keys(allowedModes)}`);
@@ -74,9 +79,15 @@ function prepareInput (mode, mainArgs) {
 
   switch (mode) {
     case allowedModes.eslint:
-      currentJSON = fs.readJSON(`${mainArgs[mainArgs.indexOf('-current') + 1]}`);
-      masterJSON = fs.readJSON(`${mainArgs[mainArgs.indexOf('-master') + 1]}`);
-      resultJSONPath = path.resolve(path.dirname(mainArgs[1]), `result.json`);
+      if (currentExecutionMode === 'console') {
+        currentJSON = fs.readJSONSync(`${mainArgs[mainArgs.indexOf('-current') + 1]}`);
+        masterJSON = fs.readJSONSync(`${mainArgs[mainArgs.indexOf('-master') + 1]}`);
+        resultJSONPath = path.resolve(mainArgs.indexOf('-result') !== -1 ? mainArgs[mainArgs.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
+      } else {
+        currentJSON = fs.readJSONSync(mainArgs.currentJson);
+        masterJSON = fs.readJSONSync(mainArgs.masterJSON);
+        resultJSONPath = mainArgs.resultJSON ? mainArgs.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
+      }
       // FIXME возвращать в виде объекта, использовать деструктуризацию
       input = [masterJSON, currentJSON, resultJSONPath];
   }
