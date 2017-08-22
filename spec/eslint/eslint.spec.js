@@ -83,7 +83,9 @@ prepareInput = (testCase) => {
  * Запуск приложения
  */
 runApp = () => {
-  sh.exec(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+    console.log(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+    sh.exec(`cd ${basePackagePath}`);
+    sh.exec(`node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
 };
 
 /**
@@ -95,7 +97,7 @@ clearInputForTest = () => {
   sh.rm(`${basePackagePath}/result.json`);
 };
 
-describe('eslint', () => {
+fdescribe('eslint', () => {
   describe('исключающий мерж', () => {
     beforeAll(() => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
