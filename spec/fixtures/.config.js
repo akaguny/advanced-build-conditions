@@ -1,12 +1,13 @@
 module.export = {
     eslint: {
-        current: 'current',
-        master: '',
-        result: ''
+        current: 'pathTocurrent',
+        master: 'pathTomaster',
+        result: 'pathToResult'
     },
     teamcity: {
-        login: 'login',
-        pass: 'pass',
-        host: 'host'
+        login: 'testLogin',
+        pass: 'testPass',
+        host: 'testHost',
+        projectId: 'testProjectId'
     }
 }
