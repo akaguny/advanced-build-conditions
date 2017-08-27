@@ -26,6 +26,8 @@ identInputForTest = (testCase) => {
       master,
       error = 'error';
 
+  console.log(testCase);
+
   switch (testCase) {
     case 'equal':
       master = error;
@@ -54,11 +56,6 @@ identInputForTest = (testCase) => {
     default:
       break;
   }
-
-  console.log({
-    masterInputName: master,
-    currentInputName: current
-  });
 
   return {
     masterInputName: master,
@@ -93,9 +90,17 @@ runAppFromConsole = (specifyTempPath) => {
  * Очистить входные данные после теста
  */
 clearInputForTest = () => {
-  sh.rm(`${basePackagePath}/fromCurrent.json`);
-  sh.rm(`${basePackagePath}/fromMaster.json`);
-  sh.rm(`${basePackagePath}/result.json`);
+  const filesForRemove = [
+    `${basePackagePath}/fromCurrent.json`,
+    `${basePackagePath}/fromMaster.json`,
+    `${basePackagePath}/result.json`
+  ];
+
+  filesForRemove.forEach((item) => {
+    if (sh.test('-e', item)) {
+      sh.rm(item);
+    }
+  });
 };
 
 describe('eslint', () => {
@@ -210,13 +215,9 @@ describe('eslint', () => {
     });
 
     it('релизует мерж', () => {
-      let resultFixtureName = 'onesLessErrorFile';
-      prepareInput('onesLessErrorFile');
-      console.dir({
-        mode: 'eslint',
-        currentJson: `${basePackagePath}/fromCurrent.json`,
-        masterJSON: `${basePackagePath}/fromMaster.json`
-      });
+      let resultFixtureName = 'oneMoreErrorInExistErrorFile';
+
+      prepareInput(resultFixtureName);
       buildFailedConditions({
         mode: 'eslint',
         currentJson: `${basePackagePath}/fromCurrent.json`,
