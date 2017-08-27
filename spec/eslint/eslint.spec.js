@@ -98,36 +98,36 @@ clearInputForTest = () => {
   sh.rm(`${basePackagePath}/result.json`);
 };
 
-fdescribe('eslint', () => {
+describe('eslint', () => {
+  let resultJSON,
+      expectedJSON;
+
+  afterEach(() => {
+    clearInputForTest();
+  });
+
   describe('исключающий мерж', () => {
     beforeAll(() => {
       sh.chmod('+x', `${basePackagePath}/index.js`);
     });
 
-    afterEach(() => {
-      clearInputForTest();
-    });
-
     describe('создан результирующий файл', () => {
       it('в папке от куда вызывается скрипт', () => {
-          prepareInput('empty');
-          runAppFromConsole();
+        prepareInput('empty');
+        runAppFromConsole();
 
-          expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+        expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
       });
 
       it('в указанной папке', () => {
-          prepareInput('empty');
-          runAppFromConsole(basePackagePath);
+        prepareInput('empty');
+        runAppFromConsole(basePackagePath);
 
-          expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
-      })
+        expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+      });
     });
 
-    describe('файлы идентичны', function () {
-      let resultJSON,
-          expectedJSON;
-
+    describe('файлы', function () {
       afterEach(() => {
         resultJSON = undefined;
       });
@@ -222,12 +222,12 @@ fdescribe('eslint', () => {
         currentJson: `${basePackagePath}/fromCurrent.json`,
         masterJSON: `${basePackagePath}/fromMaster.json`,
         resultJSON: `${basePackagePath}/result.json`
+      }).then(function () {
+        expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+        resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+        expect(resultJSON).toEqual(expectedJSON);
       });
-
-      expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
-      resultJSON = readJSON(`${basePackagePath}/result.json`);
-
-      expect(resultJSON).toEqual(expectedJSON);
     });
   });
 });
