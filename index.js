@@ -24,10 +24,15 @@ if (require.main === module) {
   module.exports = main;
 }
 
+/**
+ *
+ * @param args
+ * @return {Promise}
+ */
 function main (args) {
   let currentMode = getCurrentMode(args);
 
-  runChecks(currentMode, args);
+  return runChecks(currentMode, args);
 };
 
 /**
@@ -57,12 +62,16 @@ function getCurrentMode (mainArgs) {
  * Запустить проверки
  * @param {String} mode - режим
  * @param {Aray} mainArgs - аргументы
+ * @return {Promise} - обещание оеончания проверки
  */
 function runChecks (mode, mainArgs) {
+  var checkCompletePromise;
   switch (mode) {
     case allowedModes.eslint:
-      require(path.resolve(__dirname, 'lib/eslint')).apply(null, prepareInput(mode, mainArgs));
+      checkCompletePromise = require(path.resolve(__dirname, 'lib/eslint')).apply(null, prepareInput(mode, mainArgs));
   }
+
+  return checkCompletePromise;
 }
 
 /**
