@@ -9,6 +9,7 @@
 'use-strict';
 const fs = require('fs-extra'),
       path = require('path'),
+      ensureArray = require('ensure-array'),
       procArg = process.argv,
       allowedModes = {
         eslint: 'eslint'
@@ -65,10 +66,19 @@ function getCurrentMode (mainArgs) {
  * @return {Promise} - обещание оеончания проверки
  */
 function runChecks (mode, mainArgs) {
-  var checkCompletePromise;
+  let checkCompletePromise,
+      preparedInput;
   switch (mode) {
     case allowedModes.eslint:
-      checkCompletePromise = require(path.resolve(__dirname, 'lib/eslint')).apply(null, prepareInput(mode, mainArgs));
+      preparedInput = prepareInput(mode, mainArgs);
+      checkCompletePromise = require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput)
+          .then((mergeResult) => {
+              console.log(ensureArray(mergeResult).length === 0);
+              return ensureArray(mergeResult).length === 0;
+          })
+          .catch((e) => {
+              throw new Error(e);
+          });
   }
 
   return checkCompletePromise;
@@ -103,3 +113,13 @@ function prepareInput (mode, mainArgs) {
 
   return input;
 }
+
+/**
+ * Выставление статуса
+ * @param {Boolean} isSuccess
+ * @param {String} [reason='']
+ */
+function reportStatus (isSuccess, reason) {
+  let _reason = reason ? `=== Reason: ${reason}` : '';
+  console.log(`\n\n=== Build ${isSuccess ? 'Success' : 'Failed'}\n${_reason}`);
+};
