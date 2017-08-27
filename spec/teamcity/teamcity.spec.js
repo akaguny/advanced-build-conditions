@@ -105,13 +105,13 @@ describe('teamcity', () => {
           })(process.stdout.write);
         });
 
-        xit('имя сборки', () => {
+        it('имя сборки', () => {
           tc.setBuildName(`${testBuildName}`);
 
           expect(stdout).toContain(`##teamcity[buildNumber '${testBuildName}']`);
         });
 
-        xit('проблему сборки', () => {
+        it('проблему сборки', () => {
           tc.setBuildProblem(testBuildProblem);
 
           expect(stdout).toContain(`##teamcity[buildProblem description='${testBuildProblem}' identity='']`);
