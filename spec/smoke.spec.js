@@ -95,7 +95,7 @@ prepareConfig = (forResult) => {
     pass: testPassword,
     host: testHost,
     projectId: testProjectId,
-    buildid: testBuildId
+    buildId: testBuildId
   };
 
   return config;
