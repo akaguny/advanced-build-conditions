@@ -2,8 +2,33 @@
 
 /** run from commandline:
  * node index.js
+ * eslint
  * -master /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json
  * -current /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json
+ * teamcity
+ * -login testUsername
+ * -pass testPassword
+ * -host testHost
+ * -projectId testProjectId
+ * -buildId testBuildId
+ */
+
+/**
+ * run as nodejs module
+ * const buildFailedConditions = require('buildFailedConditions');
+ * let config = {eslint: {}, teamcity: {}};
+ * config.eslint = {
+    masterJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
+    currentJson: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+  };
+ * config.teamcity = {
+    login: testUsername,
+    pass: testPassword,
+    host: testHost,
+    projectId: testProjectId,
+    buildId: testBuildId
+  };
+ * console.log(buildFailedConditions(config));
  */
 /* eslint-env es6:true */
 'use-strict';
