@@ -7,7 +7,43 @@
 ![Flow](./img/flow.jpg)
 ![Before](./img/before.jpg)
 ![After](./img/after.jpg)
+##Использование
+###run from commandline:
+```
+node index.js eslint
+ -master /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json
+ -current /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json
+ teamcity
+ -login testUsername
+ -pass testPassword
+ -host testHost
+ -projectId testProjectId
+ -buildId testBuildId
+```
+в одну строку это должно выглядеть так:
+```
+node index.js eslint -master /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json -current 
+/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json teamcity -login testUsername -pass testPassword -host testHost 
+-projectId testProjectId -buildId testBuildId
+```
 
+###run as nodejs module
+```
+const buildFailedConditions = require('buildFailedConditions');
+let config = {eslint: {}, teamcity: {}};
+config.eslint = {
+  masterJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
+  currentJson: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+};
+config.teamcity = {
+  login: testUsername,
+  pass: testPassword,
+  host: testHost,
+  projectId: testProjectId,
+  buildId: testBuildId
+};
+console.log(buildFailedConditions(config));
+```
 ##Модули
 ###Teamcity
 Решение для выставления статуса сборки по мержу в ветку как аналог встроенному
