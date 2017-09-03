@@ -219,10 +219,11 @@ describe('eslint', () => {
 
       prepareInput(resultFixtureName);
       buildFailedConditions({
-        mode: 'eslint',
-        currentJson: `${basePackagePath}/fromCurrent.json`,
-        masterJSON: `${basePackagePath}/fromMaster.json`,
-        resultJSON: `${basePackagePath}/result.json`
+        eslint: {
+          currentJson: `${basePackagePath}/fromCurrent.json`,
+          masterJSON: `${basePackagePath}/fromMaster.json`,
+          resultJSON: `${basePackagePath}/result.json`
+        }
       }).then(function () {
         expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
         resultJSON = readJSON(`${basePackagePath}/result.json`);
