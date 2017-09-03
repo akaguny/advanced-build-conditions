@@ -39,7 +39,8 @@ let prepareInput,
 identInputForTest = (testCase) => {
   let current,
       master,
-      error = 'error';
+      error = 'error',
+      tempMaster;
 
   console.log(testCase);
 
@@ -53,7 +54,8 @@ identInputForTest = (testCase) => {
       current = testCase;
       break;
     case 'onesLessErrorFile':
-      master = identInputForTest('newErrorsAndFiles').masterInputName;
+      tempMaster = identInputForTest('newErrorsAndFiles').masterJSON.replace('.json', '.json');
+      master = path.basename(tempMaster, path.extname(tempMaster));
       current = error;
       break;
     case 'oneMoreErrorInExistErrorFile':
@@ -61,7 +63,8 @@ identInputForTest = (testCase) => {
       current = testCase;
       break;
     case 'onesLessErrorInExistErrorFile':
-      master = identInputForTest('oneMoreErrorInExistErrorFile').masterInputName;
+      tempMaster = identInputForTest('oneMoreErrorInExistErrorFile').masterJSON.replace('.json', '');
+      master = path.basename(tempMaster, path.extname(tempMaster));
       current = error;
       break;
     case 'empty':
@@ -73,8 +76,8 @@ identInputForTest = (testCase) => {
   }
 
   return {
-    masterJSON: `${fixturePath}/${master}.json`,
-    currentJson: `${fixturePath}/${current}.json`
+    masterJSON: path.resolve(fixturePath, `${master}.json`),
+    currentJson: path.resolve(fixturePath, `${current}.json`)
   };
 };
 
@@ -89,7 +92,7 @@ identInputForTest = (testCase) => {
 prepareConfig = (forResult) => {
   let config = {eslint: {}, teamcity: {}};
 
-  config.eslint = identInputForTest(mapStatusFixtures[forResult]);
+  config.eslint = identInputForTest(forResult);
   config.teamcity = {
     login: testUsername,
     pass: testPassword,
@@ -120,17 +123,20 @@ describe('smoke тест: выставление статуса сборки', (
   });
 
   it('прошла', () => {
-    let ecpectedStatus = mapStatusFixtures.success;
-    buildFailedConditions(prepareConfig(ecpectedStatus)).then((status) => {
-      expect(stdout).toContain(`##teamcity[buildStatus status='${ecpectedStatus}'`);
+    let expectedStatus = 'success',
+        fixture = mapStatusFixtures[expectedStatus];
+    buildFailedConditions(prepareConfig(fixture)).then((status) => {
+      expect(status).toEqual(true);
+      expect(stdout).toContain(`##teamcity[buildStatus status='${expectedStatus}'`);
     });
   });
 
   it('провалилась', () => {
-    let ecpectedStatus = mapStatusFixtures.failed;
-    buildFailedConditions(prepareConfig(ecpectedStatus)).then((status) => {
-      expect(status).toEqual(ecpectedStatus);
-      expect(stdout).toContain(`##teamcity[buildStatus status='${ecpectedStatus}' text='Новые ошибки eslint']`);
+    let expectedStatus = 'failed',
+        fixture = mapStatusFixtures[expectedStatus];
+    buildFailedConditions(prepareConfig(fixture)).then((status) => {
+      expect(status).toEqual(false);
+      expect(stdout).toContain(`##teamcity[buildStatus status='${expectedStatus}' text='Новые ошибки eslint']`);
     });
   });
 });
