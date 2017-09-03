@@ -38,7 +38,8 @@ const fs = require('fs-extra'),
       procArg = process.argv,
       allowedModes = {
         eslint: 'eslint'
-      };
+      },
+      tc = require('./lib/teamcity');
 
 let currentExecutionMode = '';
 
@@ -58,7 +59,10 @@ if (require.main === module) {
 function main (args) {
   let currentMode = getCurrentMode(args);
 
-  return runChecks(currentMode, args);
+  return runChecks(currentMode, args).then((result) => {
+    reportStatus(result);
+    return result;
+  });
 };
 
 /**
@@ -91,19 +95,18 @@ function getCurrentMode (mainArgs) {
  * @return {Promise} - обещание оеончания проверки
  */
 function runChecks (mode, mainArgs) {
-  let checkCompletePromise,
-      preparedInput;
+  let checkCompletePromise;
   switch (mode) {
     case allowedModes.eslint:
-      preparedInput = prepareInput(mode, mainArgs);
-      checkCompletePromise = require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput)
-          .then((mergeResult) => {
-              console.log(ensureArray(mergeResult).length === 0);
-              return ensureArray(mergeResult).length === 0;
-          })
-          .catch((e) => {
-              throw new Error(e);
-          });
+      checkCompletePromise = prepareInput(mode, mainArgs).then((preparedInput) => {
+        return require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput);
+      }).then((mergeResult) => {
+        console.log(ensureArray(mergeResult).length === 0);
+        return ensureArray(mergeResult).length === 0;
+      })
+        .catch((e) => {
+          throw new Error(e);
+        });
   }
 
   return checkCompletePromise;
@@ -112,28 +115,42 @@ function runChecks (mode, mainArgs) {
 /**
  * Подготовить входные данные для режима
  * @param {String} mode - режим
- * @param {Aray} mainArgs - аргументы
- * @return {Array} подготовленные входные данные
+ * @param {Array} mainArgs - аргументы
+ * @return {Promise} подготовленные входные данные
  */
 function prepareInput (mode, mainArgs) {
   let currentJSON,
       masterJSON,
       resultJSONPath,
-      input;
+      input,
+      eslintConfigSection,
+      teamcityConfig,
+      teamcityConfigStartPosition,
+      currentModeIsConsole = currentExecutionMode === 'console',
+      masterPararameterIndex;
 
   switch (mode) {
     case allowedModes.eslint:
-      if (currentExecutionMode === 'console') {
-        currentJSON = fs.readJSONSync(`${mainArgs[mainArgs.indexOf('-current') + 1]}`);
-        masterJSON = fs.readJSONSync(`${mainArgs[mainArgs.indexOf('-master') + 1]}`);
-        resultJSONPath = path.resolve(mainArgs.indexOf('-result') !== -1 ? mainArgs[mainArgs.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
+      if (currentModeIsConsole) {
+        teamcityConfigStartPosition = mainArgs.indexOf('teamcity');
+        eslintConfigSection = mainArgs.slice(mainArgs.indexOf('eslint'), teamcityConfigStartPosition !== -1 ? teamcityConfigStartPosition : mainArgs.length);
+        currentJSON = fs.readJSON(`${eslintConfigSection[eslintConfigSection.indexOf('-current') + 1]}`);
+        masterPararameterIndex = eslintConfigSection.indexOf('-master');
+        if (masterPararameterIndex === -1) {
+          teamcityConfig = mapTeamcityConfig(mainArgs);
+          tc.init(teamcityConfig, teamcityConfig.buildId);
+          masterJSON = tc.getBuildArtifact();
+        } else {
+          masterJSON = fs.readJSON(eslintConfigSection[masterPararameterIndex + 1]);
+        }
+        resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
       } else {
-        currentJSON = fs.readJSONSync(mainArgs.currentJson);
-        masterJSON = fs.readJSONSync(mainArgs.masterJSON);
-        resultJSONPath = mainArgs.resultJSON ? mainArgs.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
+        currentJSON = fs.readJSON(mainArgs.eslint.currentJson);
+        masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
+        resultJSONPath = mainArgs.eslint.resultJSON ? mainArgs.eslint.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
       }
       // FIXME возвращать в виде объекта, использовать деструктуризацию
-      input = [masterJSON, currentJSON, resultJSONPath];
+      input = Promise.all([masterJSON, currentJSON, resultJSONPath]);
   }
 
   return input;
@@ -148,3 +165,43 @@ function reportStatus (isSuccess, reason) {
   let _reason = reason ? `=== Reason: ${reason}` : '';
   console.log(`\n\n=== Build ${isSuccess ? 'Success' : 'Failed'}\n${_reason}`);
 };
+
+/**
+ * @typedef {Object} teamcityConfig
+ * @property {String} username - имя пользователя
+ * @property {String} password - пароль пользователя
+ * @property {String} host - хост, вместе с протоколом и портом
+ * @property {String} projectId - id проекта
+ * @property {String} buildId - id сборки
+ */
+
+/**
+ * Смаппировать конфигурацию для temcity
+ * @param {Array} mainArgs - аргументы
+ * @returns {teamcityConfig}
+ */
+function mapTeamcityConfig (mainArgs) {
+  const teamcityConfig = {
+    username: '',
+    password: '',
+    host: '',
+    projectId: '',
+    buildId: ''
+  };
+  let positionOfTcConf;
+
+  if (currentExecutionMode === 'console') {
+    positionOfTcConf = mainArgs.indexOf('teamcity');
+    teamcityConfig.username = mainArgs.indexOf('login', positionOfTcConf);
+    teamcityConfig.password = mainArgs.indexOf('pass', positionOfTcConf);
+    teamcityConfig.host = mainArgs.indexOf('host', positionOfTcConf);
+    teamcityConfig.projectId = mainArgs.indexOf('projectid', positionOfTcConf);
+    teamcityConfig.buildId = mainArgs.indexOf('buildid', positionOfTcConf);
+  } else {
+    teamcityConfig.username = mainArgs.login;
+    teamcityConfig.password = mainArgs.pass;
+    teamcityConfig.host = teamcityConfig.host;
+    teamcityConfig.projectId = teamcityConfig.projectId;
+    teamcityConfig.buildId = teamcityConfig.buildId;
+  }
+}
