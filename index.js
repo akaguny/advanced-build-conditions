@@ -37,7 +37,8 @@ const fs = require('fs-extra'),
       ensureArray = require('ensure-array'),
       procArg = process.argv,
       allowedModes = {
-        eslint: 'eslint'
+        eslint: 'eslint',
+        teamcity: 'teamcity'
       },
       tc = require('./lib/teamcity');
 
@@ -57,17 +58,34 @@ if (require.main === module) {
  * @return {Promise}
  */
 function main (args) {
-  let currentMode = getCurrentMode(args);
+  let currentMode = getCurrentMode(args),
+      local = isCalledLocal(args);
 
   return runChecks(currentMode, args).then((result) => {
-    reportStatus(result);
+    let reportMode = local ? result.mode : 'teamcity';
+    // Fixme костыль с выставлением статуса для сборки
+    reportStatus(reportMode, result.success, result.description);
     return result;
   });
 };
 
 /**
+ *
+ * @param args
+ * @returns {}
+ */
+function isCalledLocal (args) {
+  let calledLocal;
+
+  calledLocal = (Array.isArray(args) && args.indexOf('local') !== -1) ||
+      args.local;
+
+  return calledLocal;
+}
+
+/**
  * Определить текущий режим работы
- * @param {Array} - mainArgs массив аргументов коммандной
+ * @param {Array|Object} - mainArgs массив аргументов коммандной
  * @return {String} - режим
  */
 function getCurrentMode (mainArgs) {
@@ -89,20 +107,31 @@ function getCurrentMode (mainArgs) {
 };
 
 /**
+ * @typedef {Promise} ChecksResult
+ * @property {String} mode - режим проверки/средство
+ * @property {String} success - флаг успешности проверки
+ * @property {String} description - описание ошибки
+ */
+
+/**
  * Запустить проверки
  * @param {String} mode - режим
  * @param {Aray} mainArgs - аргументы
- * @return {Promise} - обещание оеончания проверки
+ * @return {ChecksResult} - обещание оеончания проверки
  */
 function runChecks (mode, mainArgs) {
-  let checkCompletePromise;
+  let checkCompletePromise = {};
   switch (mode) {
     case allowedModes.eslint:
       checkCompletePromise = prepareInput(mode, mainArgs).then((preparedInput) => {
         return require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput);
       }).then((mergeResult) => {
-        console.log(ensureArray(mergeResult).length === 0);
-        return ensureArray(mergeResult).length === 0;
+        let isSuccess = ensureArray(mergeResult).length === 0;
+        return {
+          mode: allowedModes,
+          success: isSuccess,
+          description: isSuccess ? '' : 'New ESlint errors'
+        };
       })
         .catch((e) => {
           throw new Error(e);
@@ -137,9 +166,10 @@ function prepareInput (mode, mainArgs) {
         currentJSON = fs.readJSON(`${eslintConfigSection[eslintConfigSection.indexOf('-current') + 1]}`);
         masterPararameterIndex = eslintConfigSection.indexOf('-master');
         if (masterPararameterIndex === -1) {
-          teamcityConfig = mapTeamcityConfig(mainArgs);
-          tc.init(teamcityConfig, teamcityConfig.buildId);
-          masterJSON = tc.getBuildArtifact();
+          teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+            return tc.getBuildArtifact();
+          });
         } else {
           masterJSON = fs.readJSON(eslintConfigSection[masterPararameterIndex + 1]);
         }
@@ -151,6 +181,9 @@ function prepareInput (mode, mainArgs) {
       }
       // FIXME возвращать в виде объекта, использовать деструктуризацию
       input = Promise.all([masterJSON, currentJSON, resultJSONPath]);
+      break;
+    case allowedModes.teamcity:
+      input = mapTeamcityConfig(mainArgs);
   }
 
   return input;
@@ -158,12 +191,23 @@ function prepareInput (mode, mainArgs) {
 
 /**
  * Выставление статуса
- * @param {Boolean} isSuccess
- * @param {String} [reason='']
+ * @param {String} currentMode - текущий режим
+ * @param {Boolean} isSuccess - флаг статуса
+ * @param {String} [reason=''] - причина
  */
-function reportStatus (isSuccess, reason) {
-  let _reason = reason ? `=== Reason: ${reason}` : '';
-  console.log(`\n\n=== Build ${isSuccess ? 'Success' : 'Failed'}\n${_reason}`);
+function reportStatus (currentMode, isSuccess, reason) {
+  let _reason;
+
+  switch (currentMode) {
+    case 'teamcity':
+      if (!isSuccess) {
+        tc.setBuildProblem(reason, reason);
+      }
+      break;
+    default:
+      _reason = reason ? `=== Reason: ${reason}` : '';
+      console.log(`\n\n=== Build ${status}\n${_reason}`);
+  }
 };
 
 /**
@@ -204,4 +248,6 @@ function mapTeamcityConfig (mainArgs) {
     teamcityConfig.projectId = teamcityConfig.projectId;
     teamcityConfig.buildId = teamcityConfig.buildId;
   }
+
+  return teamcityConfig;
 }

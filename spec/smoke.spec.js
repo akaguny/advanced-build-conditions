@@ -17,7 +17,7 @@ let prepareInput,
     runAppFromConsole,
     testMasterBuildName = '1.12.0/develop',
     testBuildStatus = 'Failed',
-    testBuildFailedReason = 'It`s not good build',
+    testBuildFailedReason = 'New ESlint errors',
     testBuildProblem = 'It`s real big problem',
     testUsername = 'teamcity',
     testPassword = 'password',
@@ -125,18 +125,18 @@ describe('smoke тест: выставление статуса сборки', (
   it('прошла', () => {
     let expectedStatus = 'success',
         fixture = mapStatusFixtures[expectedStatus];
-    buildFailedConditions(prepareConfig(fixture)).then((status) => {
-      expect(status).toEqual(true);
-      expect(stdout).toContain(`##teamcity[buildStatus status='${expectedStatus}'`);
+    buildFailedConditions(prepareConfig(fixture)).then((result) => {
+      expect(result.success).toEqual(true);
+      expect(stdout).not.toContain(`##teamcity[buildProblem description='`);
     });
   });
 
   it('провалилась', () => {
     let expectedStatus = 'failed',
         fixture = mapStatusFixtures[expectedStatus];
-    buildFailedConditions(prepareConfig(fixture)).then((status) => {
-      expect(status).toEqual(false);
-      expect(stdout).toContain(`##teamcity[buildStatus status='${expectedStatus}' text='Новые ошибки eslint']`);
+    buildFailedConditions(prepareConfig(fixture)).then((result) => {
+      expect(result.success).toEqual(false);
+      expect(stdout).toContain(`#teamcity[buildProblem description='${testBuildFailedReason}' identity='${testBuildFailedReason}']`);
     });
   });
 });
