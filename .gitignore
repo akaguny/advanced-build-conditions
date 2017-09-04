@@ -1,3 +1,6 @@
 /reports/
 /.idea/
 /spec/fixtures/.config.js
+/lib/debugTeamcity.js
+/lib/debugIndexEslint.js
+/lib/debugIndex.js
