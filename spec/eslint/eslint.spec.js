@@ -4,64 +4,12 @@ const sh = require('shelljs'),
       basePackagePath = path.resolve(__dirname, '../..'),
       fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
       resultFixturePath = path.resolve(fixturePath, 'result'),
-      readJSON = fs.readJSONSync;
+      readJSON = fs.readJSONSync,
+      helpers = require('../helpers');
 
 let prepareInput,
-    identInputForTest,
     clearInputForTest,
     runAppFromConsole;
-/**
- * Идентификация входных данных
- * на основе кейса определяет имена json файлов с тестовыми данными
- * @param {string} testCase - кейс использования:
- * (equal|oneMoreError|oneMoreNewError|empty)
- * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
- * данными
- * @property {String} masterInputName - мастер ветку
- * @property {String} currentInputName - текущую ветку
- * @return {testDataJSONNames}
- */
-identInputForTest = (testCase) => {
-  let current,
-      master,
-      error = 'error';
-
-  console.log(testCase);
-
-  switch (testCase) {
-    case 'equal':
-      master = error;
-      current = error;
-      break;
-    case 'newErrorsAndFiles':
-      master = error;
-      current = testCase;
-      break;
-    case 'onesLessErrorFile':
-      master = identInputForTest('newErrorsAndFiles').masterInputName;
-      current = error;
-      break;
-    case 'oneMoreErrorInExistErrorFile':
-      master = error;
-      current = testCase;
-      break;
-    case 'onesLessErrorInExistErrorFile':
-      master = identInputForTest('oneMoreErrorInExistErrorFile').masterInputName;
-      current = error;
-      break;
-    case 'empty':
-      master = testCase;
-      current = testCase;
-      break;
-    default:
-      break;
-  }
-
-  return {
-    masterInputName: master,
-    currentInputName: current
-  };
-};
 
 /**
  * функия копирует входные json в корень
@@ -69,10 +17,10 @@ identInputForTest = (testCase) => {
  * (equal|oneMoreError|oneMoreNewError|empty)
  */
 prepareInput = (testCase) => {
-  const testDataPath = identInputForTest(testCase);
+  const testDataPath = helpers.identInputForTest(testCase, fixturePath);
 
-  sh.cp(`${fixturePath}/${testDataPath.masterInputName}.json`, `${basePackagePath}/fromMaster.json`);
-  sh.cp(`${fixturePath}/${testDataPath.currentInputName}.json`,
+  sh.cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
+  sh.cp(testDataPath.currentJson,
     `${basePackagePath}/fromCurrent.json`);
 };
 

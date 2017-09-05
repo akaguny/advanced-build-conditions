@@ -37,8 +37,7 @@ helpers.prepareConfig = prepareConfig;
 function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
   let current,
       master,
-      error = 'error',
-      tempMaster;
+      error = 'error';
 
   console.log(testCase);
 
@@ -52,8 +51,7 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
       current = testCase;
       break;
     case 'onesLessErrorFile':
-      tempMaster = identInputForTest('newErrorsAndFiles', fixturesPath, true);
-      master = path.basename(tempMaster, path.extname(tempMaster));
+      master = identInputForTest('newErrorsAndFiles', fixturesPath, true).masterJSON;
       current = error;
       break;
     case 'oneMoreErrorInExistErrorFile':
@@ -61,8 +59,7 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
       current = testCase;
       break;
     case 'onesLessErrorInExistErrorFile':
-      tempMaster = identInputForTest('oneMoreErrorInExistErrorFile', fixturesPath, true);
-      master = path.basename(tempMaster, path.extname(tempMaster));
+      master = identInputForTest('oneMoreErrorInExistErrorFile', fixturesPath, true).masterJSON;
       current = error;
       break;
     case 'empty':
@@ -74,8 +71,8 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
   }
 
   return {
-    masterJSON: path.resolve(fixturesPath, `${master}${!notIncludeExtention ? '.json' : ''}`),
-    currentJson: path.resolve(fixturesPath, `${current}${!notIncludeExtention ? '.json' : ''}`)
+    masterJSON: path.resolve(fixturesPath, `${master}${!notIncludeExtention || master.indexOf('.json') !== -1 ? '.json' : ''}`),
+    currentJson: path.resolve(fixturesPath, `${current}${!notIncludeExtention || current.indexOf('.json') !== -1 ? '.json' : ''}`)
   };
 };
 
