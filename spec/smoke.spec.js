@@ -106,16 +106,19 @@ prepareConfig = (forResult) => {
 
 describe('smoke тест: выставление статуса сборки', () => {
   let buildFailedConditions,
-      stdout;
-  beforeEach(() => {
-    stdout = '';
+      stdout = '';
 
+  beforeEach(() => {
     process.stdout.write = (function (write) {
       return function (string, encoding, fileDescriptor) {
         stdout += `${string}\n`;
         write.apply(process.stdout, arguments);
       };
     })(process.stdout.write);
+  });
+
+  afterEach(() => {
+      stdout = '';
   });
 
   beforeEach(() => {
@@ -125,9 +128,11 @@ describe('smoke тест: выставление статуса сборки', (
   it('прошла', () => {
     let expectedStatus = 'success',
         fixture = mapStatusFixtures[expectedStatus];
+
+    console.log('=stdout at moment: \n', stdout);
     buildFailedConditions(prepareConfig(fixture)).then((result) => {
       expect(result.success).toEqual(true);
-      expect(stdout).not.toContain(`##teamcity[buildProblem description='`);
+      expect(stdout).not.toContain(`##teamcity[buildProblem description=`);
     });
   });
 
