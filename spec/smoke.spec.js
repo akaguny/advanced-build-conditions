@@ -109,8 +109,8 @@ describe('smoke тест: выставление статуса сборки', (
       stdout = '';
 
   beforeEach(() => {
-      stdout = '';
-      process.stdout.write = (function (write) {
+    stdout = '';
+    process.stdout.write = (function (write) {
       return function (string, encoding, fileDescriptor) {
         stdout += `${string}\n`;
         write.apply(process.stdout, arguments);

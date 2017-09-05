@@ -205,7 +205,7 @@ function prepareInput (mode, mainArgs) {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
           masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
             return tc.getBuildArtifact().then((artifact) => {
-                return JSON.parse(artifact);
+              return JSON.parse(artifact);
             });
           });
         }
