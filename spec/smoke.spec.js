@@ -1,114 +1,20 @@
-const sh = require('shelljs'),
-      path = require('path'),
-      fs = require('fs-extra'),
+const path = require('path'),
       basePackagePath = path.resolve(__dirname, '..'),
       fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
-      resultFixturePath = path.resolve(fixturePath, 'result'),
-      readJSON = fs.readJSONSync,
       mapStatusFixtures = {
         success: 'equal',
         failed: 'newErrorsAndFiles'
-      };
+      },
+      helpers = require('./helpers');
 
-let prepareInput,
-    identInputForTest,
-    prepareConfig,
-    clearInputForTest,
-    runAppFromConsole,
-    testMasterBuildName = '1.12.0/develop',
-    testBuildStatus = 'Failed',
-    testBuildFailedReason = 'New ESlint errors',
-    testBuildProblem = 'It`s real big problem',
-    testUsername = 'teamcity',
-    testPassword = 'password',
-    testHost = 'http://localhost:8080',
-    testProjectId = 'testProjectId',
-    testBuildName = 'pull-requests/2741',
-    testBuildId = 19994;
-
-/**
- * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
- * данными
- * @property {String} masterInputName - мастер ветку
- * @property {String} currentInputName - текущую ветку
- */
-
-/**
- * Идентификация входных данных
- * на основе кейса определяет имена json файлов с тестовыми данными
- * @param {string} testCase - кейс использования:
- * (equal|oneMoreError|oneMoreNewError|empty)
- * @param {String} fixturesPath - путь к фикстурам
- * @param {boolean} notIncludeExtention - не использовать расширение при формировании пути
- * @return {testDataJSONNames}
- */
-identInputForTest = (testCase, fixturesPath, notIncludeExtention) => {
-  let current,
-      master,
-      error = 'error',
-      tempMaster;
-
-  console.log(testCase);
-
-  switch (testCase) {
-    case 'equal':
-      master = error;
-      current = error;
-      break;
-    case 'newErrorsAndFiles':
-      master = error;
-      current = testCase;
-      break;
-    case 'onesLessErrorFile':
-      tempMaster = identInputForTest('newErrorsAndFiles', fixturesPath, true);
-      master = path.basename(tempMaster, path.extname(tempMaster));
-      current = error;
-      break;
-    case 'oneMoreErrorInExistErrorFile':
-      master = error;
-      current = testCase;
-      break;
-    case 'onesLessErrorInExistErrorFile':
-      tempMaster = identInputForTest('oneMoreErrorInExistErrorFile', fixturesPath, true);
-      master = path.basename(tempMaster, path.extname(tempMaster));
-      current = error;
-      break;
-    case 'empty':
-      master = testCase;
-      current = testCase;
-      break;
-    default:
-      break;
-  }
-
-  return {
-    masterJSON: path.resolve(fixturePath, `${master}${!notIncludeExtention ? '.json' : ''}`),
-    currentJson: path.resolve(fixturePath, `${current}${!notIncludeExtention ? '.json' : ''}`)
-  };
-};
-
-/**
- * Подготовка конфигурации для работы
- * @param {String} forResult - failed | success
- * @typedef {Object} Config
- * @property {Object} teamcity
- * @property {Object} eslint
- * @return {Config}
- */
-prepareConfig = (forResult) => {
-  let config = {eslint: {}, teamcity: {}};
-
-  config.eslint = identInputForTest(forResult, fixturePath);
-  config.teamcity = {
-    login: testUsername,
-    pass: testPassword,
-    host: testHost,
-    projectId: testProjectId,
-    buildId: testBuildId
-  };
-
-  return config;
-};
+let testBuildFailedReason = 'New ESlint errors',
+    testCreditials = {
+      login: 'teamcity',
+      pass: 'password',
+      host: 'http://localhost:8080',
+      projectId: 'testProjectId',
+      buildId: '19994'
+    };
 
 describe('smoke тест: выставление статуса сборки', () => {
   let buildFailedConditions,
@@ -137,7 +43,7 @@ describe('smoke тест: выставление статуса сборки', (
         fixture = mapStatusFixtures[expectedStatus];
 
     console.log('=stdout at moment: \n', stdout);
-    buildFailedConditions(prepareConfig(fixture)).then((result) => {
+    buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
       expect(result.success).toEqual(true);
       expect(stdout).not.toContain(`##teamcity[buildProblem description=`);
     });
@@ -146,7 +52,7 @@ describe('smoke тест: выставление статуса сборки', (
   it('провалилась', () => {
     let expectedStatus = 'failed',
         fixture = mapStatusFixtures[expectedStatus];
-    buildFailedConditions(prepareConfig(fixture)).then((result) => {
+    buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
       expect(result.success).toEqual(false);
       expect(stdout).toContain(`#teamcity[buildProblem description='${testBuildFailedReason}' identity='${testBuildFailedReason}']`);
     });
