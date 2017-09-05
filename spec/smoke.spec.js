@@ -6,7 +6,7 @@ const sh = require('shelljs'),
       resultFixturePath = path.resolve(fixturePath, 'result'),
       readJSON = fs.readJSONSync,
       mapStatusFixtures = {
-        success: 'onesLessErrorInExistErrorFile',
+        success: 'equal',
         failed: 'newErrorsAndFiles'
       };
 
@@ -109,7 +109,8 @@ describe('smoke тест: выставление статуса сборки', (
       stdout = '';
 
   beforeEach(() => {
-    process.stdout.write = (function (write) {
+      stdout = '';
+      process.stdout.write = (function (write) {
       return function (string, encoding, fileDescriptor) {
         stdout += `${string}\n`;
         write.apply(process.stdout, arguments);
@@ -118,7 +119,7 @@ describe('smoke тест: выставление статуса сборки', (
   });
 
   afterEach(() => {
-      stdout = '';
+    stdout = '';
   });
 
   beforeEach(() => {
