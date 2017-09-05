@@ -25,18 +25,24 @@ let prepareInput,
     testProjectId = 'testProjectId',
     testBuildName = 'pull-requests/2741',
     testBuildId = 19994;
+
+/**
+ * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
+ * данными
+ * @property {String} masterInputName - мастер ветку
+ * @property {String} currentInputName - текущую ветку
+ */
+
 /**
  * Идентификация входных данных
  * на основе кейса определяет имена json файлов с тестовыми данными
  * @param {string} testCase - кейс использования:
  * (equal|oneMoreError|oneMoreNewError|empty)
- * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
- * данными
- * @property {String} masterInputName - мастер ветку
- * @property {String} currentInputName - текущую ветку
+ * @param {String} fixturesPath - путь к фикстурам
+ * @param {boolean} notIncludeExtention - не использовать расширение при формировании пути
  * @return {testDataJSONNames}
  */
-identInputForTest = (testCase) => {
+identInputForTest = (testCase, fixturesPath, notIncludeExtention) => {
   let current,
       master,
       error = 'error',
@@ -54,7 +60,7 @@ identInputForTest = (testCase) => {
       current = testCase;
       break;
     case 'onesLessErrorFile':
-      tempMaster = identInputForTest('newErrorsAndFiles').masterJSON.replace('.json', '.json');
+      tempMaster = identInputForTest('newErrorsAndFiles', fixturesPath, true);
       master = path.basename(tempMaster, path.extname(tempMaster));
       current = error;
       break;
@@ -63,7 +69,7 @@ identInputForTest = (testCase) => {
       current = testCase;
       break;
     case 'onesLessErrorInExistErrorFile':
-      tempMaster = identInputForTest('oneMoreErrorInExistErrorFile').masterJSON.replace('.json', '');
+      tempMaster = identInputForTest('oneMoreErrorInExistErrorFile', fixturesPath, true);
       master = path.basename(tempMaster, path.extname(tempMaster));
       current = error;
       break;
@@ -76,8 +82,8 @@ identInputForTest = (testCase) => {
   }
 
   return {
-    masterJSON: path.resolve(fixturePath, `${master}.json`),
-    currentJson: path.resolve(fixturePath, `${current}.json`)
+    masterJSON: path.resolve(fixturePath, `${master}${!notIncludeExtention ? '.json' : ''}`),
+    currentJson: path.resolve(fixturePath, `${current}${!notIncludeExtention ? '.json' : ''}`)
   };
 };
 
@@ -92,7 +98,7 @@ identInputForTest = (testCase) => {
 prepareConfig = (forResult) => {
   let config = {eslint: {}, teamcity: {}};
 
-  config.eslint = identInputForTest(forResult);
+  config.eslint = identInputForTest(forResult, fixturePath);
   config.teamcity = {
     login: testUsername,
     pass: testPassword,
