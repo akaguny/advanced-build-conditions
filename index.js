@@ -30,6 +30,28 @@
   };
  * console.log(buildFailedConditions(config));
  */
+
+/**
+ * @typedef {Object} Config
+ * @property {TeamcityConfig} teamcity
+ * @property {EslintConfig} eslint
+ */
+
+/**
+ * @typedef {Object} TeamcityConfig
+ * @property {String} username - имя пользователя
+ * @property {String} password - пароль пользователя
+ * @property {String} host - хост, вместе с протоколом и портом
+ * @property {String} projectId - id проекта
+ * @property {String} buildId - id сборки
+ */
+
+/**
+ * @typedef {Object} EslintConfig
+ * @property {Object} masterJSON - json с мастер ветки
+ * @property {Object} currentJSON - текущий json
+ * @property {String} resultJSONPath - путь, куда записывать результат
+ */
 /* eslint-env es6:true */
 'use-strict';
 const fs = require('fs-extra'),
@@ -40,7 +62,8 @@ const fs = require('fs-extra'),
         eslint: 'eslint',
         teamcity: 'teamcity'
       },
-      tc = require('./lib/teamcity');
+      tc = require('./lib/teamcity'),
+      clone = require('lodash.clone');
 
 let currentExecutionMode = '';
 
@@ -53,8 +76,8 @@ if (require.main === module) {
 }
 
 /**
- *
- * @param args
+ * Главная функция, точка входа
+ * @param {Array|config} args
  * @return {Promise}
  */
 function main (args) {
@@ -70,9 +93,9 @@ function main (args) {
 };
 
 /**
- *
- * @param args
- * @returns {}
+ * Выполняется ли вызов в режиме локального
+ * @param {Array|Сonfig} args
+ * @returns {Boolean}
  */
 function isCalledLocal (args) {
   let calledLocal;
@@ -80,7 +103,7 @@ function isCalledLocal (args) {
   calledLocal = (Array.isArray(args) && args.indexOf('local') !== -1) ||
       args.local;
 
-  return calledLocal;
+  return calledLocal === true;
 }
 
 /**
@@ -176,7 +199,16 @@ function prepareInput (mode, mainArgs) {
         resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
       } else {
         currentJSON = fs.readJSON(mainArgs.eslint.currentJson);
-        masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
+        if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
+          masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
+        } else {
+          teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+            return tc.getBuildArtifact().then((artifact) => {
+                return JSON.parse(artifact);
+            });
+          });
+        }
         resultJSONPath = mainArgs.eslint.resultJSON ? mainArgs.eslint.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
       }
       // FIXME возвращать в виде объекта, использовать деструктуризацию
@@ -206,22 +238,13 @@ function reportStatus (currentMode, isSuccess, reason) {
       break;
     default:
       _reason = reason ? `=== Reason: ${reason}` : '';
-      console.log(`\n\n=== Build ${status}\n${_reason}`);
+      console.log(`\n\n=== Build ${isSuccess}\n${_reason}`);
   }
 };
 
 /**
- * @typedef {Object} teamcityConfig
- * @property {String} username - имя пользователя
- * @property {String} password - пароль пользователя
- * @property {String} host - хост, вместе с протоколом и портом
- * @property {String} projectId - id проекта
- * @property {String} buildId - id сборки
- */
-
-/**
  * Смаппировать конфигурацию для temcity
- * @param {Array} mainArgs - аргументы
+ * @param {Array|Config} mainArgs - аргументы
  * @returns {teamcityConfig}
  */
 function mapTeamcityConfig (mainArgs) {
@@ -232,7 +255,8 @@ function mapTeamcityConfig (mainArgs) {
     projectId: '',
     buildId: ''
   };
-  let positionOfTcConf;
+  let positionOfTcConf,
+      _teamcityConfig = clone(mainArgs.teamcity);
 
   if (currentExecutionMode === 'console') {
     positionOfTcConf = mainArgs.indexOf('teamcity');
@@ -242,11 +266,11 @@ function mapTeamcityConfig (mainArgs) {
     teamcityConfig.projectId = mainArgs.indexOf('projectid', positionOfTcConf);
     teamcityConfig.buildId = mainArgs.indexOf('buildid', positionOfTcConf);
   } else {
-    teamcityConfig.username = mainArgs.login;
-    teamcityConfig.password = mainArgs.pass;
-    teamcityConfig.host = teamcityConfig.host;
-    teamcityConfig.projectId = teamcityConfig.projectId;
-    teamcityConfig.buildId = teamcityConfig.buildId;
+    teamcityConfig.username = _teamcityConfig.login;
+    teamcityConfig.password = _teamcityConfig.password;
+    teamcityConfig.host = _teamcityConfig.host;
+    teamcityConfig.projectId = _teamcityConfig.projectId;
+    teamcityConfig.buildId = _teamcityConfig.buildId;
   }
 
   return teamcityConfig;
