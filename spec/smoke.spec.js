@@ -42,7 +42,6 @@ describe('smoke тест: выставление статуса сборки', (
     let expectedStatus = 'success',
         fixture = mapStatusFixtures[expectedStatus];
 
-    console.log('=stdout at moment: \n', stdout);
     buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
       expect(result.success).toEqual(true);
       expect(stdout).not.toContain(`##teamcity[buildProblem description=`);
