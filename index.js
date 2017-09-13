@@ -63,6 +63,7 @@ const fs = require('fs-extra'),
         teamcity: 'teamcity'
       },
       tc = require('./lib/teamcity'),
+      utils = require('./lib/utils'),
       clone = require('lodash.clone');
 
 let currentExecutionMode = '';
@@ -84,7 +85,7 @@ function main (args) {
   let currentMode = getCurrentMode(args),
       local = isCalledLocal(args);
 
-  return runChecks(currentMode, args).then((result) => {
+  return runChecks(currentMode, args, local).then((result) => {
     let reportMode = local ? result.mode : 'teamcity';
     // Fixme костыль с выставлением статуса для сборки
     reportStatus(reportMode, result.success, result.description);
@@ -140,13 +141,14 @@ function getCurrentMode (mainArgs) {
  * Запустить проверки
  * @param {String} mode - режим
  * @param {Aray} mainArgs - аргументы
+ * @param {boolean} isLocal - локальный ли запуск
  * @return {ChecksResult} - обещание оеончания проверки
  */
-function runChecks (mode, mainArgs) {
+function runChecks (mode, mainArgs, isLocal) {
   let checkCompletePromise = {};
   switch (mode) {
     case allowedModes.eslint:
-      checkCompletePromise = prepareInput(mode, mainArgs).then((preparedInput) => {
+      checkCompletePromise = prepareInput(mode, mainArgs, isLocal).then((preparedInput) => {
         return require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput);
       }).then((mergeResult) => {
         let isSuccess = ensureArray(mergeResult).length === 0;
@@ -168,12 +170,14 @@ function runChecks (mode, mainArgs) {
  * Подготовить входные данные для режима
  * @param {String} mode - режим
  * @param {Array} mainArgs - аргументы
+ * @param {boolean} isLocal - локальный ли запуск
  * @return {Promise} подготовленные входные данные
  */
-function prepareInput (mode, mainArgs) {
+function prepareInput (mode, mainArgs, isLocal) {
   let currentJSON,
       masterJSON,
       resultJSONPath,
+      masterPath,
       input,
       eslintConfigSection,
       teamcityConfig,
@@ -198,21 +202,36 @@ function prepareInput (mode, mainArgs) {
         }
         resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
       } else {
-        currentJSON = fs.readJSON(mainArgs.eslint.currentJson);
+        currentJSON = fs.readJSON(mainArgs.eslint.currentJson).then((currentObject) => {
+          return currentObject.map((item) => {
+            if (isLocal) {
+              item.filePath = item.filePath.replace('\\', '/');
+            }
+            return item;
+          });
+        });
+        masterPath = mainArgs.eslint.masterPath;
         if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
         } else {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
           masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
             return tc.getBuildArtifact().then((artifact) => {
-              return JSON.parse(artifact);
+              return JSON.parse(artifact).map((item) => {
+                if (isLocal) {
+                  // FIXME: захардкожен teamcity, можно выявлять на основе наличия или отсутствия конфига
+                  item.filePath = utils.mergePathsFromAnyEnv(masterPath, item.filePath, allowedModes.teamcity);
+                  item.filePath = item.filePath.replace(/\\/g, '/');
+                }
+                return item;
+              });
             });
           });
         }
         resultJSONPath = mainArgs.eslint.resultJSON ? mainArgs.eslint.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
       }
       // FIXME возвращать в виде объекта, использовать деструктуризацию
-      input = Promise.all([masterJSON, currentJSON, resultJSONPath]);
+      input = Promise.all([masterJSON, currentJSON, resultJSONPath, masterPath]);
       break;
     case allowedModes.teamcity:
       input = mapTeamcityConfig(mainArgs);
