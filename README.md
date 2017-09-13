@@ -1,12 +1,18 @@
-# buld failed conditions
+# buld failed conditions ![CI status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 Решение для выставление статусов сборки ct(continues test) на основе дополнительных
 проверок, основанных на результатах проверок unit тестов, линтеров и т.д.
+
 Архитектура решения подразумевает модульность, которая должна позволить использовать
 различные обработчики, выносить их в отдельные npm пакеты, развивать и поддерживать
 как отдельные приложения.
 ![Flow](./img/flow.jpg)
 ![Before](./img/before.jpg)
 ![After](./img/after.jpg)
+##Установка
+###Требования
+* NodeJs 8+
+* npm5
+* linux(желательно)
 ##Использование
 ###run from commandline:
 ```
@@ -91,7 +97,58 @@ TODO: приложение не будет работать если в путя
 TODO: если форматтер не eslint-teamcity, например когда выполняется локальная проверка. 
 То прийдётся выполнять несолько прогонов eslint, один с форматтером json, другой с человекопонятным выводом
 TODO: доработка консольного интерфейса для выставления параметров и для eslint и для teamcity
-  
+TODO: функция для резолва путей, т.к. при локальном прогоне могут возникать проблемы со сравнением ошибок eslint,
+что связано с тем, что в агенте н-р teamcity путь до одного и того-же будет различным:
+`/home/alexey/IdeaProjects/sfa/devTools/js/grunt-config/copy.js`
+и teamcity:
+`/opt/teamcity-agent/work/89d8f1306cb75ef7/devTools/js/grunt-config/copy.js`
+Черновой вариант это определять, что путь с teamcity по наличию в пути teamcity-agent:
+```
+path1 = '/opt/teamcity-agent/work/89d8f1306cb75ef7/devTools/js/grunt-config/copy.js';
+if(path.indexOf('teamcity-agent')){
+    path11 = path1.split('/').slice(0,path1.split('/').indexOf('work') + 2)
+}
+path11; //["", "opt", "teamcity-agent", "work", "89d8f1306cb75ef7"]
+```
+Подставим basepath директории из которой будет запускаться скрипт.
+! но при этом мы должны находиться в корне vcs что-бы всё работало как надо
+`var pathResult = path.resolve(process.argv[0], path11)`
+Реализовано в utils;
+TODO: переработать конфиг, несколько вариантов:
+Конфигурация для различых тестов(codestyle/unit):
+Вариант 1:
+```
+{
+    tests: {
+        eslint: {eslintConfig},
+        unit: {unitConfig},
+        ......
+    },
+    ciEnv:{...}
+}
+```
+Вариант 2:
+```
+{
+    tests: {
+        codestype: [eslintConfig],
+        unit: {unitConfig},
+        ......
+    },
+    ciEnv:{...}
+}
+```
+Конфигурация окружения:
+```
+{
+    tests:{...},
+    ciEnv: {
+        codestype: [eslintConfig],
+        unit: {unitConfig},
+        ......
+    }
+}
+```
 ##Внимание - известные ограничения
 Если в путях присутствуют пробелы, то модуль работать не будет!
   
