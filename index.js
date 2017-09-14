@@ -205,7 +205,7 @@ function prepareInput (mode, mainArgs, isLocal) {
         currentJSON = fs.readJSON(mainArgs.eslint.currentJson).then((currentObject) => {
           return currentObject.map((item) => {
             if (isLocal) {
-              item.filePath = item.filePath.replace('\\', '/');
+              item.filePath = item.filePath.replace(/\\/g, '/');
             }
             return item;
           });
