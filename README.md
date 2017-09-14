@@ -1,4 +1,4 @@
-# buld failed conditions ![CI status](https://img.shields.io/badge/build-passing-brightgreen.svg)
+# advanced build conditions
 Решение для выставление статусов сборки ct(continues test) на основе дополнительных
 проверок, основанных на результатах проверок unit тестов, линтеров и т.д.
 
