@@ -5,6 +5,7 @@ const sh = require('shelljs'),
       fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
       resultFixturePath = path.resolve(fixturePath, 'result'),
       readJSON = fs.readJSONSync,
+      cp = fs.copySync,
       helpers = require('../helpers');
 
 let prepareInput,
@@ -19,8 +20,8 @@ let prepareInput,
 prepareInput = (testCase) => {
   const testDataPath = helpers.identInputForTest(testCase, fixturePath);
 
-  sh.cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
-  sh.cp(testDataPath.currentJson,
+  cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
+  cp(testDataPath.currentJson,
     `${basePackagePath}/fromCurrent.json`);
 };
 
@@ -30,8 +31,7 @@ prepareInput = (testCase) => {
  */
 runAppFromConsole = (specifyTempPath) => {
   console.log(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
-  sh.exec(`cd ${basePackagePath}`);
-  sh.exec(`node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json ${specifyTempPath ? '-result ' + specifyTempPath : ''}`);
+  sh.exec(`node ${basePackagePath}/index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json ${specifyTempPath ? '-result ' + specifyTempPath : ''}`);
 };
 
 /**
