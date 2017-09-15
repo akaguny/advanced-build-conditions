@@ -1,5 +1,5 @@
 {
-  "name": "advancedBuildConditions",
+  "name": "advanced-build-conditions",
   "version": "1.0.3",
   "description": "Набор инструментов для выставления статуса сборки",
   "main": "index.js",
