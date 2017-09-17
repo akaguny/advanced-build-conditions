@@ -41,6 +41,10 @@ describe('teamcity', () => {
       expect(tc.getBuildArtifact).toBeDefined();
 
       expect(tc.prepareEslintReportForTeamcity).toBeDefined();
+
+      expect(tc.getVcsBaseInfo).toBeDefined();
+
+      expect(tc.getBuildBranchId).toBeDefined();
     });
 
     describe('в работе', () => {
@@ -122,6 +126,18 @@ describe('teamcity', () => {
           expect(stdout).toContain(`##teamcity[buildStatus status='${testBuildStatus}' text='${testBuildFailedReason}']`);
         });
       });
+
+      describe('позволяет получить', () => {
+        const testBuildNumber = '7777';
+
+          beforeEach(() => {
+            process.env.BUILD_NUMBER = testBuildNumber;
+          });
+
+          afterEach(() => {
+              delete process.env.BUILD_NUMBER;
+          });
+      })
     });
   });
 });
