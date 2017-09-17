@@ -2,7 +2,9 @@ const utils = require('../lib/utils');
 
 describe('utils', () => {
   it('есть нужные функции', () => {
-    expect(typeof utils.mergePathsFromAnyEnv === 'function').toBeTruthy();
+    let funcExist = typeof utils.mergePathsFromAnyEnv === 'function';
+
+    expect(funcExist).toBeTruthy();
   });
 
   describe('mergePathsFromAnyEnv', () => {
