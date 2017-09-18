@@ -18,8 +18,9 @@
 const buildFailedConditions = require('buildFailedConditions');
 let config = {eslint: {}, teamcity: {}};
 config.eslint = {
-  masterJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
-  currentJson: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+  masterJSON: `/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
+  currentJson: `/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+  resultJSON: '/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json'
 };
 config.teamcity = {
   login: testUsername,
@@ -28,6 +29,7 @@ config.teamcity = {
   projectId: testProjectId,
   buildId: testBuildId
 };
+config.local = false;
 console.log(buildFailedConditions(config));
 ```
 ## Модули
