@@ -86,9 +86,6 @@ function main (args) {
       local = isCalledLocal(args);
 
   return runChecks(currentMode, args, local).then((result) => {
-    let reportMode = local ? result.mode : 'teamcity';
-    // Fixme костыль с выставлением статуса для сборки
-    reportStatus(reportMode, result.success, result.description);
     return result;
   });
 };
@@ -239,27 +236,6 @@ function prepareInput (mode, mainArgs, isLocal) {
 
   return input;
 }
-
-/**
- * Выставление статуса
- * @param {String} currentMode - текущий режим
- * @param {Boolean} isSuccess - флаг статуса
- * @param {String} [reason=''] - причина
- */
-function reportStatus (currentMode, isSuccess, reason) {
-  let _reason;
-
-  switch (currentMode) {
-    case 'teamcity':
-      if (!isSuccess) {
-        tc.setBuildProblem(reason, reason);
-      }
-      break;
-    default:
-      _reason = reason ? `=== Reason: ${reason}` : '';
-      console.log(`\n\n=== Build ${isSuccess}\n${_reason}`);
-  }
-};
 
 /**
  * Смаппировать конфигурацию для temcity
