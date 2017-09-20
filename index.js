@@ -19,7 +19,7 @@
  * let config = {eslint: {}, teamcity: {}};
  * config.eslint = {
     masterJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
-    currentJson: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+    currentJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
   };
  * config.teamcity = {
     login: testUsername,
@@ -202,7 +202,7 @@ function prepareInput (mode, mainArgs, isLocal) {
         }
         resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
       } else {
-        currentJSON = fs.readJSON(mainArgs.eslint.currentJson).then((currentObject) => {
+        currentJSON = fs.readJSON(mainArgs.eslint.currentJSON).then((currentObject) => {
           return currentObject.map((item) => {
             if (isLocal) {
               item.filePath = item.filePath.replace(/\\/g, '/');

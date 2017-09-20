@@ -19,7 +19,7 @@ const buildFailedConditions = require('buildFailedConditions');
 let config = {eslint: {}, teamcity: {}};
 config.eslint = {
   masterJSON: `/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
-  currentJson: `/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
+  currentJSON: `/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
   resultJSON: '/home/work/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json'
 };
 config.teamcity = {
