@@ -86,9 +86,6 @@ function main (args) {
       local = isCalledLocal(args);
 
   return runChecks(currentMode, args, local).then((result) => {
-    let reportMode = local ? result.mode : 'teamcity';
-    // Fixme костыль с выставлением статуса для сборки
-    reportStatus(reportMode, result.success, result.description);
     return result;
   });
 };

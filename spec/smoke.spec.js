@@ -44,7 +44,6 @@ describe('smoke тест: выставление статуса сборки', (
 
     buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
       expect(result.success).toEqual(true);
-      expect(stdout).not.toContain(`##teamcity[buildProblem description=`);
     });
   });
 
@@ -53,7 +52,6 @@ describe('smoke тест: выставление статуса сборки', (
         fixture = mapStatusFixtures[expectedStatus];
     buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
       expect(result.success).toEqual(false);
-      expect(stdout).toContain(`#teamcity[buildProblem description='${testBuildFailedReason}' identity='${testBuildFailedReason}']`);
     });
   });
 });
