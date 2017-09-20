@@ -21,7 +21,7 @@ prepareInput = (testCase) => {
   const testDataPath = helpers.identInputForTest(testCase, fixturePath);
 
   cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
-  cp(testDataPath.currentJson,
+  cp(testDataPath.currentJSON,
     `${basePackagePath}/fromCurrent.json`);
 };
 
@@ -168,7 +168,7 @@ describe('eslint', () => {
       prepareInput(resultFixtureName);
       buildFailedConditions({
         eslint: {
-          currentJson: `${basePackagePath}/fromCurrent.json`,
+          currentJSON: `${basePackagePath}/fromCurrent.json`,
           masterJSON: `${basePackagePath}/fromMaster.json`,
           resultJSON: `${basePackagePath}/result.json`
         }
