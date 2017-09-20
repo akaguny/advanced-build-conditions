@@ -238,27 +238,6 @@ function prepareInput (mode, mainArgs, isLocal) {
 }
 
 /**
- * Выставление статуса
- * @param {String} currentMode - текущий режим
- * @param {Boolean} isSuccess - флаг статуса
- * @param {String} [reason=''] - причина
- */
-function reportStatus (currentMode, isSuccess, reason) {
-  let _reason;
-
-  switch (currentMode) {
-    case 'teamcity':
-      if (!isSuccess) {
-        tc.setBuildProblem(reason, reason);
-      }
-      break;
-    default:
-      _reason = reason ? `=== Reason: ${reason}` : '';
-      console.log(`\n\n=== Build ${isSuccess}\n${_reason}`);
-  }
-};
-
-/**
  * Смаппировать конфигурацию для temcity
  * @param {Array|Config} mainArgs - аргументы
  * @returns {teamcityConfig}

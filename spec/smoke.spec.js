@@ -18,21 +18,6 @@ let testBuildFailedReason = 'New ESlint errors',
 
 describe('smoke тест: выставление статуса сборки', () => {
   let buildFailedConditions,
-      stdout = '';
-
-  beforeEach(() => {
-    stdout = '';
-    process.stdout.write = (function (write) {
-      return function (string, encoding, fileDescriptor) {
-        stdout += `${string}\n`;
-        write.apply(process.stdout, arguments);
-      };
-    })(process.stdout.write);
-  });
-
-  afterEach(() => {
-    stdout = '';
-  });
 
   beforeEach(() => {
     buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
