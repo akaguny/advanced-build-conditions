@@ -7,17 +7,16 @@ const path = require('path'),
       },
       helpers = require('./helpers');
 
-let testBuildFailedReason = 'New ESlint errors',
-    testCreditials = {
-      login: 'teamcity',
-      pass: 'password',
-      host: 'http://localhost:8080',
-      projectId: 'testProjectId',
-      buildId: '19994'
-    };
+let testCreditials = {
+  login: 'teamcity',
+  pass: 'password',
+  host: 'http://localhost:8080',
+  projectId: 'testProjectId',
+  buildId: '19994'
+};
 
 describe('smoke тест: выставление статуса сборки', () => {
-  let buildFailedConditions,
+  let buildFailedConditions;
 
   beforeEach(() => {
     buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
