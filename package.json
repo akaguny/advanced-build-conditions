@@ -11,8 +11,11 @@
   "keywords": [
     "teamcity"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": { "name" : "Alexey Shcherbakov",
+    "email" : "alexeykolpino@gmail.com",
+    "url" : "http://ashcherbakov.ru/"
+  },
+  "license": "MIT",
   "devDependencies": {
     "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.1",
