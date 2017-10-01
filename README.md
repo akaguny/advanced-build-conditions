@@ -38,7 +38,7 @@ config.teamcity = {
 config.local = !process.env.TEAMCITY_VERSION;
 console.log(buildFailedConditions(config));
 ```
-####Описание:
+#### Описание:
 config.eslint.masterPath - путь к базовой директории,директории в которую происходит чекаут(локально)
 config.eslint.masterJSON - путь к json с сервера, json с результатами проверки мастер ветки. Если параметр отстутсвует,
 то json будет скачан с сервера на основании конфигурации config.teamcity.
