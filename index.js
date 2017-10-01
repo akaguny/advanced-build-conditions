@@ -209,7 +209,7 @@ function prepareInput (mode, mainArgs, isLocal) {
             }
             return item;
           });
-        });
+        }).catch(e => { throw new Error(e); });
         masterPath = mainArgs.eslint.masterPath;
         if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
