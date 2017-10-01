@@ -1,6 +1,6 @@
 {
   "name": "advanced-build-conditions",
-  "version": "1.0.3",
+  "version": "2.0.2-beta.0",
   "description": "Набор инструментов для выставления статуса сборки",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,11 @@
   "keywords": [
     "teamcity"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": { "name" : "Alexey Shcherbakov",
+    "email" : "alexeykolpino@gmail.com",
+    "url" : "http://ashcherbakov.ru/"
+  },
+  "license": "MIT",
   "devDependencies": {
     "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.1",
