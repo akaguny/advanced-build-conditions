@@ -4,8 +4,8 @@
 
 ---
 [![Flow](./img/flow358.jpg)](./img/flow.jpg)
-[![Flow](./img/before358.jpg)](./img/flow.jpg)
-[![Flow](./img/after358.jpg)](./img/flow.jpg)
+[![Flow](./img/before358.jpg)](./img/before.jpg)
+[![Flow](./img/after358.jpg)](./img/after.jpg)
 ## Установка
 `npm i advanced-build-conditions@^2.0.2-beta --save-dev`
 ### Требования
