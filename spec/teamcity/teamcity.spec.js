@@ -72,12 +72,12 @@ describe('teamcity', () => {
             }
           );
 
-        tc.init({login: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName);
+        tc.init({username: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName);
       });
 
       describe('позволяет получать', () => {
         beforeEach((done) => {
-          tc.init({login: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName).then(done);
+          tc.init({username: testUsername, password: testPassword, host: testHost, projectId: testProjectId}, testMasterBuildName).then(done);
         });
 
         it('артефакт мастер сборки', () => {
