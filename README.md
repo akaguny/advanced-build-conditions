@@ -3,11 +3,11 @@
 проверок, основанных на результатах проверок unit тестов, линтеров и т.д.
 
 ---
-[![Flow](./img/flow358.jpg)](![Flow](./img/flow.jpg))
-[![Flow](./img/before358.jpg)](![Flow](./img/flow.jpg))
-[![Flow](./img/after358.jpg)](![Flow](./img/flow.jpg))
+[![Flow](./img/flow358.jpg)](./img/flow.jpg)
+[![Flow](./img/before358.jpg)](./img/flow.jpg)
+[![Flow](./img/after358.jpg)](./img/flow.jpg)
 ## Установка
-`npm i akaguny/advanced-build-conditions#v.1.0`
+`npm i advanced-build-conditions --save-dev`
 ### Требования
 * NodeJs 8+
 * npm5
@@ -34,12 +34,10 @@ console.log(buildFailedConditions(config));
 ```
 ## Модули
 ### Teamcity
-Позволяет выставлять взаимодействовать с teamcity по REST и teamcity service messages.
+Позволяет взаимодействовать с teamcity по REST и teamcity service messages.
 
 ### Eslint
-Умеет сравнивать 2 резульата проверок codestyle и выявляет униклаьные
-
-[Подробное описание модулей](./lib/README.md)
+Умеет сравнивать 2 результата проверок codestyle и выявляет униклаьные
 
 ### Участие в разработке
 PR приветствуются, проверка codestyle и запуск юнит-тестов выполняется автоматически
@@ -50,6 +48,5 @@ PR приветствуются, проверка codestyle и запуск юн
 Если в путях присутствуют пробелы, то модуль работать не будет!
   
 ## Полезные ссылки
-* [teamcity test service messages](https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-Supportedtestservicemessages)
+* [teamcity service messages](https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-Supportedtestservicemessages)
 * [eslint-teamcity](https://www.npmjs.com/package/eslint-teamcity)
-* [teamcity-service-messages](https://github.com/pifantastic/teamcity-service-messages)
