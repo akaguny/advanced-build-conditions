@@ -32,7 +32,7 @@ config.teamcity = {
   login: testUsername,
   pass: testPassword,
   host: testHost,
-  projectId: testProjectId,
+  buildTypeId: testBuildTypeId,
   buildId: testBuildId
 };
 config.local = !process.env.TEAMCITY_VERSION;
