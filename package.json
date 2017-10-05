@@ -1,6 +1,6 @@
 {
   "name": "advanced-build-conditions",
-  "version": "2.0.2-beta.0",
+  "version": "2.0.2-beta.1",
   "description": "Набор инструментов для выставления статуса сборки",
   "main": "index.js",
   "scripts": {
@@ -11,9 +11,14 @@
   "keywords": [
     "teamcity"
   ],
-  "author": { "name" : "Alexey Shcherbakov",
-    "email" : "alexeykolpino@gmail.com",
-    "url" : "http://ashcherbakov.ru/"
+  "author": {
+    "name": "Alexey Shcherbakov",
+    "email": "alexeykolpino@gmail.com",
+    "url": "http://ashcherbakov.ru/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akaguny/advanced-build-conditions.git"
   },
   "license": "MIT",
   "devDependencies": {
