@@ -132,6 +132,13 @@ function getCurrentMode (mainArgs) {
  * @property {String} mode - режим проверки/средство
  * @property {String} success - флаг успешности проверки
  * @property {String} description - описание ошибки
+ * @property {ViolationsCount} violationsCount - нарушения eslint
+ */
+
+/**
+ * @typedef {Object}
+ * @property {Number} error - режим проверки/средство
+ * @property {Number} warning - флаг успешности проверки
  */
 
 /**
@@ -139,20 +146,24 @@ function getCurrentMode (mainArgs) {
  * @param {String} mode - режим
  * @param {Aray} mainArgs - аргументы
  * @param {boolean} isLocal - локальный ли запуск
- * @return {ChecksResult} - обещание оеончания проверки
+ * @return {ChecksResult} - обещание окончания проверки
  */
 function runChecks (mode, mainArgs, isLocal) {
+  const eslintModule = require(path.resolve(__dirname, 'lib/eslint'));
   let checkCompletePromise = {};
   switch (mode) {
     case allowedModes.eslint:
       checkCompletePromise = prepareInput(mode, mainArgs, isLocal).then((preparedInput) => {
-        return require(path.resolve(__dirname, 'lib/eslint')).apply(null, preparedInput);
+        return eslintModule.main.apply(null, preparedInput);
       }).then((mergeResult) => {
-        let isSuccess = ensureArray(mergeResult).length === 0;
+        const newViolations = ensureArray(mergeResult),
+              howMuchKindOfErrors = eslintModule.countHowMuchKindOfErrors(newViolations),
+              isSuccess = howMuchKindOfErrors.error === 0;
         return {
           mode: allowedModes,
           success: isSuccess,
-          description: isSuccess ? '' : 'New ESlint errors'
+          description: isSuccess ? '' : `New ESlint violations \nErrors:${howMuchKindOfErrors.error}\nWarnings:${howMuchKindOfErrors.warning}`,
+          violationsCount: howMuchKindOfErrors
         };
       })
         .catch((e) => {

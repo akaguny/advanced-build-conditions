@@ -22,12 +22,27 @@ describe('smoke тест: выставление статуса сборки', (
     buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
   });
 
-  it('прошла', () => {
-    let expectedStatus = 'success',
-        fixture = mapStatusFixtures[expectedStatus];
+  describe('прошла', () => {
+    it('нет нарушений', () => {
+      let expectedStatus = 'success',
+          fixture = mapStatusFixtures[expectedStatus];
 
-    buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
-      expect(result.success).toEqual(true);
+      buildFailedConditions(helpers.prepareConfig(fixture, fixturePath, testCreditials)).then((result) => {
+        expect(result.success).toEqual(true);
+        expect(result.violationsCount).toEqual({
+          error: 0,
+          warning: 0
+        });
+      });
+    });
+
+    it('есть нарушения только типа warning', () => {
+      buildFailedConditions(helpers.prepareConfig('onlyWarnings', fixturePath, testCreditials)).then((result) => {
+        expect(result.violationsCount).toEqual({
+          error: 0,
+          warning: 5
+        });
+      });
     });
   });
 
