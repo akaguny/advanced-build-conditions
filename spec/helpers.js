@@ -12,7 +12,7 @@ let helpers = {};
  * @property {String} - login
  * @property {String} - pass
  * @property {String} - host
- * @property {String} - projectId
+ * @property {String} - buildTypeId
  * @property {String} - buildId
  */
 
@@ -91,7 +91,7 @@ function prepareConfig (forResult, fixturesPath, testCreditials) {
     login: testCreditials.login,
     pass: testCreditials.pass,
     host: testCreditials.host,
-    projectId: testCreditials.projectId,
+    buildTypeId: testCreditials.buildTypeId,
     buildId: testCreditials.buildId
   };
 

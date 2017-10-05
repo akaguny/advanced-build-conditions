@@ -9,7 +9,7 @@
  * -login testUsername
  * -pass testPassword
  * -host testHost
- * -projectId testProjectId
+ * -buildTypeId testBuildTypeId
  * -buildId testBuildId
  */
 
@@ -25,7 +25,7 @@
     login: testUsername,
     pass: testPassword,
     host: testHost,
-    projectId: testProjectId,
+    buildTypeId: testBuildTypeId,
     buildId: testBuildId
   };
  * console.log(buildFailedConditions(config));
@@ -42,7 +42,7 @@
  * @property {String} username - имя пользователя
  * @property {String} password - пароль пользователя
  * @property {String} host - хост, вместе с протоколом и портом
- * @property {String} projectId - id проекта
+ * @property {String} buildTypeId - id проекта
  * @property {String} buildId - id сборки
  */
 
@@ -247,7 +247,7 @@ function mapTeamcityConfig (mainArgs) {
     username: '',
     password: '',
     host: '',
-    projectId: '',
+    buildTypeId: '',
     buildId: ''
   };
   let positionOfTcConf,
@@ -258,13 +258,13 @@ function mapTeamcityConfig (mainArgs) {
     teamcityConfig.username = mainArgs.indexOf('login', positionOfTcConf);
     teamcityConfig.password = mainArgs.indexOf('pass', positionOfTcConf);
     teamcityConfig.host = mainArgs.indexOf('host', positionOfTcConf);
-    teamcityConfig.projectId = mainArgs.indexOf('projectid', positionOfTcConf);
+    teamcityConfig.buildTypeId = mainArgs.indexOf('projectid', positionOfTcConf);
     teamcityConfig.buildId = mainArgs.indexOf('buildid', positionOfTcConf);
   } else {
     teamcityConfig.username = _teamcityConfig.login;
     teamcityConfig.password = _teamcityConfig.password;
     teamcityConfig.host = _teamcityConfig.host;
-    teamcityConfig.projectId = _teamcityConfig.projectId;
+    teamcityConfig.buildTypeId = _teamcityConfig.buildTypeId;
     teamcityConfig.buildId = _teamcityConfig.buildId;
   }
 

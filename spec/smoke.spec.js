@@ -11,7 +11,7 @@ let testCreditials = {
   login: 'teamcity',
   pass: 'password',
   host: 'http://localhost:8080',
-  projectId: 'testProjectId',
+  buildTypeId: 'testBuildTypeId',
   buildId: '19994'
 };
 
