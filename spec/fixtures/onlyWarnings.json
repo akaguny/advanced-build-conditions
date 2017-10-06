@@ -1,0 +1,26 @@
+[
+  {
+    "filePath": "fileOne",
+    "messages": [
+      {},
+      {},
+      {},
+      {}
+    ],
+    "errorCount": 0,
+    "warningCount": 4,
+    "source": "test-tests"
+  },
+  {
+    "filePath": "fileTwo",
+    "messages": [
+      {},
+      {},
+      {},
+      {}
+    ],
+    "errorCount": 0,
+    "warningCount": 1,
+    "source": "test-tests"
+  }
+]

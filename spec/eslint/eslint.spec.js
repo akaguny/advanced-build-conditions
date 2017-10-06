@@ -18,7 +18,7 @@ let prepareInput,
  * (equal|oneMoreError|oneMoreNewError|empty)
  */
 prepareInput = (testCase) => {
-  const testDataPath = helpers.identInputForTest(testCase, fixturePath);
+  const testDataPath = helpers.prepareEslintPartOfConfig(testCase, fixturePath);
 
   cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
   cp(testDataPath.currentJSON,
@@ -151,18 +151,18 @@ describe('eslint', () => {
     });
   });
 
-  describe('Интерфейс модуля', () => {
+  describe('Интерфейс модуля реализует', () => {
     let buildFailedConditions;
 
     beforeEach(() => {
       buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
     });
 
-    it('реализует экспорт', () => {
+    it('экспорт', () => {
       expect(typeof buildFailedConditions).toEqual('function');
     });
 
-    it('релизует мерж', () => {
+    it('мерж', () => {
       let resultFixtureName = 'oneMoreErrorInExistErrorFile';
 
       prepareInput(resultFixtureName);
@@ -177,6 +177,16 @@ describe('eslint', () => {
         resultJSON = readJSON(`${basePackagePath}/result.json`);
 
         expect(resultJSON).toEqual(expectedJSON);
+      });
+    });
+
+    it('подсчёт количества ошибок типа error и warning', () => {
+      const eslintModule = require(`${basePackagePath}/lib/eslint.js`),
+            jsonWithDifferentKindOfErrors = readJSON(`${fixturePath}/oneErrorAndOnewarning.json`);
+
+      expect(eslintModule.countHowMuchKindOfErrors(jsonWithDifferentKindOfErrors)).toEqual({
+        error: 3,
+        warning: 1
       });
     });
   });

@@ -22,7 +22,7 @@ let helpers = {};
  * @property {Object} eslint
  */
 
-helpers.identInputForTest = identInputForTest;
+helpers.prepareEslintPartOfConfig = prepareEslintPartOfConfig;
 helpers.prepareConfig = prepareConfig;
 
 /**
@@ -34,7 +34,7 @@ helpers.prepareConfig = prepareConfig;
  * @param {boolean} notIncludeExtention - не использовать расширение при формировании пути
  * @return {testDataJSONNames}
  */
-function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
+function prepareEslintPartOfConfig (testCase, fixturesPath, notIncludeExtention) {
   let current,
       master,
       error = 'error';
@@ -51,7 +51,7 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
       current = testCase;
       break;
     case 'onesLessErrorFile':
-      master = identInputForTest('newErrorsAndFiles', fixturesPath, true).masterJSON;
+      master = prepareEslintPartOfConfig('newErrorsAndFiles', fixturesPath, true).masterJSON;
       current = error;
       break;
     case 'oneMoreErrorInExistErrorFile':
@@ -59,17 +59,20 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
       current = testCase;
       break;
     case 'onesLessErrorInExistErrorFile':
-      master = identInputForTest('oneMoreErrorInExistErrorFile', fixturesPath, true).masterJSON;
+      master = prepareEslintPartOfConfig('oneMoreErrorInExistErrorFile', fixturesPath, true).masterJSON;
       current = error;
       break;
     case 'empty':
       master = testCase;
       current = testCase;
       break;
+    case 'onlyWarnings':
+      master = 'empty';
+      current = testCase;
+      break;
     default:
       break;
   }
-
   return {
     masterJSON: path.resolve(fixturesPath, `${master}${!notIncludeExtention || master.indexOf('.json') !== -1 ? '.json' : ''}`),
     currentJSON: path.resolve(fixturesPath, `${current}${!notIncludeExtention || current.indexOf('.json') !== -1 ? '.json' : ''}`)
@@ -86,7 +89,7 @@ function identInputForTest (testCase, fixturesPath, notIncludeExtention) {
 function prepareConfig (forResult, fixturesPath, testCreditials) {
   let config = {eslint: {}, teamcity: {}};
 
-  config.eslint = helpers.identInputForTest(forResult, fixturesPath);
+  config.eslint = helpers.prepareEslintPartOfConfig(forResult, fixturesPath);
   config.teamcity = {
     login: testCreditials.login,
     pass: testCreditials.pass,
