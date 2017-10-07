@@ -64,7 +64,8 @@ const fs = require('fs-extra'),
       },
       tc = require('./lib/teamcity'),
       utils = require('./lib/utils'),
-      clone = require('lodash.clone');
+      clone = require('lodash.clone'),
+      errors = require('./lib/errors');
 
 let currentExecutionMode = '';
 
@@ -233,6 +234,13 @@ function prepareInput (mode, mainArgs, isLocal) {
                 }
                 return item;
               });
+            }).catch((e) => {
+              if (e instanceof errors.teamcity) {
+                // TODO: отрефакторить prepare, прекращать работу модуля на этом этапе
+                return currentJSON;
+              } else {
+                throw new Error(e);
+              }
             });
           });
         }
