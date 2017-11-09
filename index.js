@@ -26,7 +26,7 @@
     pass: testPassword,
     host: testHost,
     buildTypeId: testBuildTypeId,
-    buildId: testBuildId
+    buildBranch: testBuildBranch
   };
  * console.log(buildFailedConditions(config));
  */
@@ -203,7 +203,7 @@ function prepareInput (mode, mainArgs, isLocal) {
         masterPararameterIndex = eslintConfigSection.indexOf('-master');
         if (masterPararameterIndex === -1) {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildBranch).then(() => {
             return tc.getBuildArtifact();
           });
         } else {
@@ -224,7 +224,7 @@ function prepareInput (mode, mainArgs, isLocal) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
         } else {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildBranch).then(() => {
             return tc.getBuildArtifact().then((artifact) => {
               return JSON.parse(artifact).map((item) => {
                 if (isLocal) {
