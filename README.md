@@ -33,7 +33,7 @@ config.teamcity = {
   pass: testPassword,
   host: testHost,
   buildTypeId: testBuildTypeId,
-  buildId: testBuildId
+  masterBranch: testMasterBranch
 };
 config.local = !process.env.TEAMCITY_VERSION;
 console.log(buildFailedConditions(config));
