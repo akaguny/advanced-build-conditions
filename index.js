@@ -26,7 +26,7 @@
     pass: testPassword,
     host: testHost,
     buildTypeId: testBuildTypeId,
-    buildId: testBuildId
+    masterBranch: testMasterBranch
   };
  * console.log(buildFailedConditions(config));
  */
@@ -203,7 +203,7 @@ function prepareInput (mode, mainArgs, isLocal) {
         masterPararameterIndex = eslintConfigSection.indexOf('-master');
         if (masterPararameterIndex === -1) {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
             return tc.getBuildArtifact();
           });
         } else {
@@ -225,7 +225,7 @@ function prepareInput (mode, mainArgs, isLocal) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
         } else {
           teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.buildId).then(() => {
+          masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
             return tc.getBuildArtifact().then((artifact) => {
               return JSON.parse(artifact).map((item) => {
                 if (isLocal) {
@@ -279,13 +279,13 @@ function mapTeamcityConfig (mainArgs) {
     teamcityConfig.password = mainArgs.indexOf('pass', positionOfTcConf);
     teamcityConfig.host = mainArgs.indexOf('host', positionOfTcConf);
     teamcityConfig.buildTypeId = mainArgs.indexOf('projectid', positionOfTcConf);
-    teamcityConfig.buildId = mainArgs.indexOf('buildid', positionOfTcConf);
+    teamcityConfig.masterBranch = mainArgs.indexOf('masterBranch', positionOfTcConf);
   } else {
     teamcityConfig.username = _teamcityConfig.login;
     teamcityConfig.password = _teamcityConfig.password;
     teamcityConfig.host = _teamcityConfig.host;
     teamcityConfig.buildTypeId = _teamcityConfig.buildTypeId;
-    teamcityConfig.buildId = _teamcityConfig.buildId;
+    teamcityConfig.masterBranch = _teamcityConfig.masterBranch;
   }
 
   return teamcityConfig;
