@@ -211,14 +211,15 @@ function prepareInput (mode, mainArgs, isLocal) {
         }
         resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
       } else {
-        currentJSON = fs.readJSON(mainArgs.eslint.currentJSON).then((currentObject) => {
+        currentJSON = typeof mainArgs.eslint.currentJSON === 'string' ? fs.readJSON(mainArgs.eslint.currentJSON).then((currentObject) => {
           return currentObject.map((item) => {
             if (isLocal) {
               item.filePath = item.filePath.replace(/\\/g, '/');
             }
             return item;
           });
-        }).catch(e => { throw new Error(e); });
+        }).catch(e => { throw new Error(e); })
+          : Promise.resolve(mainArgs.eslint.currentJSON);
         masterPath = mainArgs.eslint.masterPath;
         if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
