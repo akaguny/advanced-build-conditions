@@ -100,7 +100,7 @@ function isCalledLocal (args) {
   let calledLocal;
 
   calledLocal = (Array.isArray(args) && args.indexOf('local') !== -1) ||
-      args.local;
+    args.local;
 
   return calledLocal === true;
 }
@@ -115,7 +115,7 @@ function getCurrentMode (mainArgs) {
 
   for (let mode in allowedModes) {
     if ((currentExecutionMode === 'console' && mainArgs.indexOf(mode) === -1) ||
-        (mainArgs.mode && mainArgs.mode.indexOf(mode) === -1)) {
+      (mainArgs.mode && mainArgs.mode.indexOf(mode) === -1)) {
       // TODO: вынести сообщения об ошибках в хелпер
       throw new Error(`Поддерживаемый режим работы не передан
        ${Object.keys(allowedModes)}`);
@@ -133,6 +133,7 @@ function getCurrentMode (mainArgs) {
  * @property {String} mode - режим проверки/средство
  * @property {String} success - флаг успешности проверки
  * @property {String} description - описание ошибки
+ * @property {Object} eslintErrors -
  * @property {ViolationsCount} violationsCount - нарушения eslint
  */
 
@@ -163,8 +164,9 @@ function runChecks (mode, mainArgs, isLocal) {
         return {
           mode: allowedModes,
           success: isSuccess,
-          description: isSuccess ? '' : `New ESlint violations Errors:${howMuchKindOfErrors.error} Warnings:${howMuchKindOfErrors.warning}`,
-          violationsCount: howMuchKindOfErrors
+          description: isSuccess ? '' : `New ESlint violations \nErrors:${howMuchKindOfErrors.error}\nWarnings:${howMuchKindOfErrors.warning}`,
+          violationsCount: howMuchKindOfErrors,
+          newViolations: newViolations
         };
       })
         .catch((e) => {
@@ -219,7 +221,14 @@ function prepareInput (mode, mainArgs, isLocal) {
             return item;
           });
         }).catch(e => { throw new Error(e); })
-          : Promise.resolve(mainArgs.eslint.currentJSON);
+          : Promise.resolve(mainArgs.eslint.currentJSON).then((currentObject) => {
+            return currentObject.map((item) => {
+              if (isLocal) {
+                item.filePath = item.filePath.replace(/\\/g, '/');
+              }
+              return item;
+            });
+          });
         masterPath = mainArgs.eslint.masterPath;
         if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
           masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
