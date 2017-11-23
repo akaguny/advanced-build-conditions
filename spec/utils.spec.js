@@ -16,5 +16,19 @@ describe('utils', () => {
 
       expect(path.replace(/\\/g, '/')).toEqual('/home/alexey/IdeaProjects/sfa/devTools/js/grunt-config/clean.js');
     });
+
+    describe('isVerboseMode', () => {
+
+      it('true', () => {
+        process.argv.push('--verbose')
+        expect(utils.isVerboseMode()).toBeTruthy();
+        process.argv.pop();
+      });
+
+      it('false', () => {
+        expect(utils.isVerboseMode()).toBeFalsy();
+      });
+    })
+
   });
 });
