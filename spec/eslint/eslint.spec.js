@@ -1,16 +1,16 @@
 const sh = require('shelljs'),
-  path = require('path'),
-  fs = require('fs-extra'),
-  basePackagePath = path.resolve(__dirname, '../..'),
-  fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
-  resultFixturePath = path.resolve(fixturePath, 'result'),
-  readJSON = fs.readJSONSync,
-  cp = fs.copySync,
-  helpers = require('../helpers');
+      path = require('path'),
+      fs = require('fs-extra'),
+      basePackagePath = path.resolve(__dirname, '../..'),
+      fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
+      resultFixturePath = path.resolve(fixturePath, 'result'),
+      readJSON = fs.readJSONSync,
+      cp = fs.copySync,
+      helpers = require('../helpers');
 
 let prepareInput,
-  clearInputForTest,
-  runAppFromConsole;
+    clearInputForTest,
+    runAppFromConsole;
 
 /**
  * функия копирует входные json в корень
@@ -20,8 +20,8 @@ let prepareInput,
 prepareInput = (testCase) => {
   const testDataPath = helpers.prepareEslintPartOfConfig(testCase, fixturePath);
 
-  console.log(`cp ${testDataPath.masterJSON}, ${basePackagePath}/fromMaster.json`)
-  console.log(`cp ${testDataPath.currentJSON}, ${basePackagePath}/fromCurrent.json`)
+  console.log(`cp ${testDataPath.masterJSON}, ${basePackagePath}/fromMaster.json`);
+  console.log(`cp ${testDataPath.currentJSON}, ${basePackagePath}/fromCurrent.json`);
 
   cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
   cp(testDataPath.currentJSON, `${basePackagePath}/fromCurrent.json`);
@@ -55,7 +55,7 @@ clearInputForTest = () => {
 
 describe('eslint', () => {
   let resultJSON,
-    expectedJSON;
+      expectedJSON;
 
   afterEach(() => {
     clearInputForTest();
@@ -70,7 +70,7 @@ describe('eslint', () => {
       it('в папке от куда вызывается скрипт', () => {
         prepareInput('empty');
         runAppFromConsole();
-        
+
         expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
       });
 
@@ -184,7 +184,7 @@ describe('eslint', () => {
 
     it('подсчёт количества ошибок типа error и warning', () => {
       const eslintModule = require(`${basePackagePath}/lib/eslint.js`),
-        jsonWithDifferentKindOfErrors = readJSON(`${fixturePath}/oneErrorAndOnewarning.json`);
+            jsonWithDifferentKindOfErrors = readJSON(`${fixturePath}/oneErrorAndOnewarning.json`);
 
       expect(eslintModule.countHowMuchKindOfErrors(jsonWithDifferentKindOfErrors)).toEqual({
         error: 3,

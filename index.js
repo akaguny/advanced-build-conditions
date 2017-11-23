@@ -70,11 +70,11 @@ const fs = require('fs-extra'),
 let currentExecutionMode = '';
 
 if (require.main === module) {
-  console.log('console mod')
+  console.log('console mod');
   currentExecutionMode = 'console';
   main(procArg.slice(1));
 } else {
-  console.log('require mod')
+  console.log('require mod');
   currentExecutionMode = 'module';
   module.exports = main;
 }

@@ -18,9 +18,9 @@ describe('utils', () => {
     });
 
     describe('isVerboseMode', () => {
-
       it('true', () => {
-        process.argv.push('--verbose')
+        process.argv.push('--verbose');
+
         expect(utils.isVerboseMode()).toBeTruthy();
         process.argv.pop();
       });
@@ -28,7 +28,6 @@ describe('utils', () => {
       it('false', () => {
         expect(utils.isVerboseMode()).toBeFalsy();
       });
-    })
-
+    });
   });
 });
