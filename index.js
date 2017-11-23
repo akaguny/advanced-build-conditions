@@ -70,9 +70,11 @@ const fs = require('fs-extra'),
 let currentExecutionMode = '';
 
 if (require.main === module) {
+  console.log('console mod')
   currentExecutionMode = 'console';
   main(procArg.slice(1));
 } else {
+  console.log('require mod')
   currentExecutionMode = 'module';
   module.exports = main;
 }
@@ -86,6 +88,7 @@ function main (args) {
   let currentMode = getCurrentMode(args),
       local = isCalledLocal(args);
 
+  console.log('main func args', args);
   return runChecks(currentMode, args, local).then((result) => {
     return result;
   });
@@ -151,6 +154,7 @@ function getCurrentMode (mainArgs) {
  * @return {ChecksResult} - обещание окончания проверки
  */
 function runChecks (mode, mainArgs, isLocal) {
+  console.log('runChecks func args', arguments);
   const eslintModule = require(path.resolve(__dirname, 'lib/eslint'));
   let checkCompletePromise = {};
   switch (mode) {
