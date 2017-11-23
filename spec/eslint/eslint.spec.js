@@ -20,9 +20,11 @@ let prepareInput,
 prepareInput = (testCase) => {
   const testDataPath = helpers.prepareEslintPartOfConfig(testCase, fixturePath);
 
+  console.log(`cp ${testDataPath.masterJSON}, ${basePackagePath}/fromMaster.json`);
+  console.log(`cp ${testDataPath.currentJSON}, ${basePackagePath}/fromCurrent.json`);
+
   cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
-  cp(testDataPath.currentJSON,
-    `${basePackagePath}/fromCurrent.json`);
+  cp(testDataPath.currentJSON, `${basePackagePath}/fromCurrent.json`);
 };
 
 /**
