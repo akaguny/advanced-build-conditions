@@ -102,8 +102,8 @@ function main (args) {
 function isCalledLocal (args) {
   let calledLocal;
 
-  calledLocal = (Array.isArray(args) && args.indexOf('local') !== -1) ||
-    args.local;
+  calledLocal = (Array.isArray(args) && args.indexOf('--local') !== -1) ||
+    args.isLocalRun;
 
   return calledLocal === true;
 }
