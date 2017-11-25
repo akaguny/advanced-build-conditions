@@ -168,7 +168,7 @@ function runChecks (mode, mainArgs, isLocal) {
         return {
           mode: allowedModes,
           success: isSuccess,
-          description: isSuccess ? '' : `New ESlint violations \nErrors:${howMuchKindOfErrors.error}\nWarnings:${howMuchKindOfErrors.warning}`,
+          description: isSuccess ? '' : `New ESlint violations Errors:${howMuchKindOfErrors.error} Warnings:${howMuchKindOfErrors.warning}`,
           violationsCount: howMuchKindOfErrors,
           newViolations: newViolations
         };
