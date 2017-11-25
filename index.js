@@ -241,9 +241,9 @@ function prepareInput (mode, mainArgs, isLocal) {
           masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
             return tc.getBuildArtifact().then((artifact) => {
               return JSON.parse(artifact).map((item) => {
+                // FIXME: захардкожен teamcity, можно выявлять на основе наличия или отсутствия конфига
+                item.filePath = utils.mergePathsFromAnyEnv(masterPath, item.filePath, allowedModes.teamcity);
                 if (isLocal) {
-                  // FIXME: захардкожен teamcity, можно выявлять на основе наличия или отсутствия конфига
-                  item.filePath = utils.mergePathsFromAnyEnv(masterPath, item.filePath, allowedModes.teamcity);
                   item.filePath = item.filePath.replace(/\\/g, '/');
                 }
                 return item;
