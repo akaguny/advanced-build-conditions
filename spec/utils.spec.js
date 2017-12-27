@@ -29,5 +29,21 @@ describe('utils', () => {
         expect(utils.isVerboseMode()).toBeFalsy();
       });
     });
+
+    describe('filerArrayOfObjectsByPropertyValue', () => {
+      let exampleArrayOfObjects;
+      beforeAll(() => {
+        exampleArrayOfObjects = [{a:'a'},{a:'b'},'c'];
+      })
+
+      it('success > value', () => {
+        expect(utils.filerArrayOfObjectsByPropertyValue(exampleArrayOfObjects,
+          'a','a')).toEqual(exampleArrayOfObjects[0]);
+      })
+      it('fail > undefined', () => {
+        expect(utils.filerArrayOfObjectsByPropertyValue(exampleArrayOfObjects,
+          'a','d')).toBeUndefined();
+      })
+    })
   });
 });
