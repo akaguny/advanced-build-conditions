@@ -2,7 +2,8 @@ const path = require('path'),
       basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
       fs = require('fs-extra'),
-      eslintReportJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/error.json`);
+      eslintReportJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/error.json`),
+      buildStatisticsJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/buildStatistics.json`);
 
 let tc;
 
@@ -88,6 +89,17 @@ describe('teamcity', () => {
             });
           tc.getBuildArtifact().then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
+          });
+        });
+
+        it('параметры сбороки', () => {
+          nock(testHost)
+            .get(function (url) {
+              expect(url).toEqual(`repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`);
+              return false;
+            });
+          tc.getBuildStatistics().then((buildStatistic) => {
+            expect(JSON.parse(buildStatistic)).toEqual(buildStatisticsJSON);
           });
         });
       });
