@@ -1,71 +1,190 @@
-const path = require('path'),
+const sh = require('shelljs'),
+      path = require('path'),
       fs = require('fs-extra'),
       basePackagePath = path.resolve(__dirname, '../..'),
       fixturePath = path.resolve(basePackagePath, 'spec', 'fixtures'),
       resultFixturePath = path.resolve(fixturePath, 'result'),
       readJSON = fs.readJSONSync,
+      cp = fs.copySync,
       helpers = require('../helpers');
 
-describe('eslint', () => {
-  let eslintModule;
+let prepareInput,
+    clearInputForTest,
+    runAppFromConsole;
 
-  beforeEach(() => {
-    eslintModule = require(`${basePackagePath}/lib/eslint.js`);
+/**
+ * функия копирует входные json в корень
+ * @param {string} testCase - кейс использования:
+ * (equal|oneMoreError|oneMoreNewError|empty)
+ */
+prepareInput = (testCase) => {
+  const testDataPath = helpers.prepareEslintPartOfConfig(testCase, fixturePath);
+
+  console.log(`cp ${testDataPath.masterJSON}, ${basePackagePath}/fromMaster.json`);
+  console.log(`cp ${testDataPath.currentJSON}, ${basePackagePath}/fromCurrent.json`);
+
+  cp(testDataPath.masterJSON, `${basePackagePath}/fromMaster.json`);
+  cp(testDataPath.currentJSON, `${basePackagePath}/fromCurrent.json`);
+};
+
+/**
+ * Запуск приложения
+ * @param {string} [specifyTempPath] - специфичный путь для хранения результата
+ */
+runAppFromConsole = (specifyTempPath) => {
+  console.log(`cd ${basePackagePath}; node index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json`);
+  sh.exec(`node ${basePackagePath}/index.js eslint -master ${basePackagePath}/fromMaster.json -current ${basePackagePath}/fromCurrent.json ${specifyTempPath ? '-result ' + specifyTempPath : ''}`);
+};
+
+/**
+ * Очистить входные данные после теста
+ */
+clearInputForTest = () => {
+  const filesForRemove = [
+    `${basePackagePath}/fromCurrent.json`,
+    `${basePackagePath}/fromMaster.json`,
+    `${basePackagePath}/result.json`
+  ];
+
+  filesForRemove.forEach((item) => {
+    if (sh.test('-e', item)) {
+      sh.rm(item);
+    }
+  });
+};
+
+describe('eslint', () => {
+  let resultJSON,
+      expectedJSON;
+
+  afterEach(() => {
+    clearInputForTest();
   });
 
-  describe('файлы', function () {
-    it('пусты', function () {
-      let resultFixtureName = 'empty';
-
-      expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual([]);
+  describe('исключающий мерж', () => {
+    beforeAll(() => {
+      sh.chmod('+x', `${basePackagePath}/index.js`);
     });
 
-    it('одинаковы', function () {
-      let resultFixtureName = 'empty';
+    describe('создан результирующий файл', () => {
+      it('в папке от куда вызывается скрипт', () => {
+        prepareInput('empty');
+        runAppFromConsole();
 
-      expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+      });
+
+      it('в указанной папке', () => {
+        prepareInput('empty');
+        runAppFromConsole(basePackagePath);
+
+        expect(sh.test('-f', `${basePackagePath}/result.json`)).toBeTruthy();
+      });
     });
 
-    describe('не одинаковы', function () {
-      it('новый файл с ошибками', () => {
-        let resultFixtureName = 'newErrorsAndFiles';
-
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+    describe('файлы', function () {
+      afterEach(() => {
+        resultJSON = undefined;
       });
 
-      it('новые ошибки в файле, в котором уже были ошибки', () => {
-        let resultFixtureName = 'oneMoreErrorInExistErrorFile';
+      it('пусты', function () {
+        prepareInput('empty');
+        runAppFromConsole();
+        expectedJSON = readJSON(`${resultFixturePath}/empty.json`);
+        resultJSON = readJSON(`${basePackagePath}/result.json`);
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(resultJSON).toEqual([]);
       });
 
-      it('уменьшение количества ошибок', () => {
+      it('одинаковы', function () {
         let resultFixtureName = 'empty';
+        prepareInput('equal');
+        runAppFromConsole();
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        resultJSON = readJSON(`${basePackagePath}/result.json`);
+        expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+
+        expect(resultJSON).toEqual(expectedJSON);
       });
 
-      it('уменьшение количества файлов с ошибками', () => {
-        let resultFixtureName = 'onesLessErrorFile';
+      describe('не одинаковы', function () {
+        it('новый файл с ошибками', () => {
+          let resultFixtureName = 'newErrorsAndFiles';
+          prepareInput(resultFixtureName);
+          runAppFromConsole();
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+          resultJSON = readJSON(`${basePackagePath}/result.json`);
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+          expect(resultJSON).toEqual(expectedJSON);
+        });
+
+        it('новые ошибки в файле, в котором уже были ошибки', () => {
+          let resultFixtureName = 'oneMoreErrorInExistErrorFile';
+          prepareInput(resultFixtureName);
+          runAppFromConsole();
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+          resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+          expect(resultJSON).toEqual(expectedJSON);
+        });
+
+        it('уменьшение количества ошибок', () => {
+          let resultFixtureName = 'empty';
+          prepareInput('onesLessErrorInExistErrorFile');
+          runAppFromConsole();
+
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+          resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+          expect(resultJSON).toEqual(expectedJSON);
+        });
+
+        it('уменьшение количества файлов с ошибками', () => {
+          let resultFixtureName = 'onesLessErrorFile';
+          prepareInput('onesLessErrorFile');
+          runAppFromConsole();
+
+          expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+          resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+          expect(resultJSON).toEqual(expectedJSON);
+        });
       });
     });
   });
 
   describe('Интерфейс модуля реализует', () => {
-    let eslintModule;
+    let buildFailedConditions;
 
     beforeEach(() => {
-      eslintModule = require(`${basePackagePath}/lib/eslint.js`);
+      buildFailedConditions = require(`${path.resolve(basePackagePath, 'index.js')}`);
     });
 
     it('экспорт', () => {
-      expect(typeof eslintModule.diff).toEqual('function');
+      expect(typeof buildFailedConditions).toEqual('function');
+    });
+
+    it('мерж', () => {
+      let resultFixtureName = 'oneMoreErrorInExistErrorFile';
+
+      prepareInput(resultFixtureName);
+      buildFailedConditions({
+        eslint: {
+          currentJSON: `${basePackagePath}/fromCurrent.json`,
+          masterJSON: `${basePackagePath}/fromMaster.json`,
+          resultJSON: `${basePackagePath}/result.json`
+        }
+      }).then(function () {
+        expectedJSON = readJSON(`${resultFixturePath}/${resultFixtureName}.json`);
+        resultJSON = readJSON(`${basePackagePath}/result.json`);
+
+        expect(resultJSON).toEqual(expectedJSON);
+      });
     });
 
     it('подсчёт количества ошибок типа error и warning', () => {
-      const jsonWithDifferentKindOfErrors = readJSON(`${fixturePath}/oneErrorAndOnewarning.json`);
+      const eslintModule = require(`${basePackagePath}/lib/eslint.js`),
+            jsonWithDifferentKindOfErrors = readJSON(`${fixturePath}/oneErrorAndOnewarning.json`);
 
       expect(eslintModule.countHowMuchKindOfErrors(jsonWithDifferentKindOfErrors)).toEqual({
         error: 3,
