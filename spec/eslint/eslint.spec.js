@@ -6,7 +6,7 @@ const path = require('path'),
       readJSON = fs.readJSONSync,
       helpers = require('../helpers');
 
-describe('eslint', () => {
+fdescribe('eslint', () => {
   let eslintModule;
 
   beforeEach(() => {
@@ -17,38 +17,38 @@ describe('eslint', () => {
     it('пусты', function () {
       let resultFixtureName = 'empty';
 
-      expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual([]);
+      expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual([]);
     });
 
     it('одинаковы', function () {
       let resultFixtureName = 'empty';
 
-      expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+      expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
     });
 
     describe('не одинаковы', function () {
       it('новый файл с ошибками', () => {
         let resultFixtureName = 'newErrorsAndFiles';
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
       });
 
       it('новые ошибки в файле, в котором уже были ошибки', () => {
         let resultFixtureName = 'oneMoreErrorInExistErrorFile';
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
       });
 
       it('уменьшение количества ошибок', () => {
         let resultFixtureName = 'empty';
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
       });
 
       it('уменьшение количества файлов с ошибками', () => {
         let resultFixtureName = 'onesLessErrorFile';
 
-        expect(eslintModule.diff(helpers.prepareEslintPartOfConfig(resultFixtureName, fixturePath))).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
+        expect(eslintModule.diff(helpers.prepareConfig(resultFixtureName, fixturePath).eslint)).toEqual(readJSON(`${resultFixturePath}/${resultFixtureName}.json`));
       });
     });
   });

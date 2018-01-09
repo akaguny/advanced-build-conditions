@@ -1,4 +1,5 @@
-const path = require('path');
+const path = require('path'),
+fs = require('fs-extra');
 let helpers = {};
 /**
  * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
@@ -87,10 +88,14 @@ function prepareEslintPartOfConfig (testCase, fixturesPath, notIncludeExtention)
  * @return {TestConfig}
  */
 function prepareConfig (forResult, fixturesPath, testCreditials) {
+  const eslintTestData = helpers.prepareEslintPartOfConfig(forResult, fixturesPath);
   let config = {eslint: {}, teamcity: {}};
 
-  config.eslint = helpers.prepareEslintPartOfConfig(forResult, fixturesPath);
-  config.teamcity = {
+  config.eslint = {
+    masterJSON: fs.readJsonSync(eslintTestData.masterJSON),
+    currentJSON: fs.readJsonSync(eslintTestData.currentJSON)
+  };
+  config.teamcity = testCreditials && {
     login: testCreditials.login,
     pass: testCreditials.pass,
     host: testCreditials.host,
