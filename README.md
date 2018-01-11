@@ -71,3 +71,19 @@ config.eslint.resultJSON - путь, по которому будет сохра
 ## Полезные ссылки
 * [teamcity service messages](https://confluence.jetbrains.com/display/TCD10/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-Supportedtestservicemessages)
 * [eslint-teamcity](https://www.npmjs.com/package/eslint-teamcity)
+* [teamcity-properties](https://www.npmjs.org/package/teamcity-properties)
+
+# TODO:
+- убрать:
+  * убрать лишние параметры:
+    - config.eslint.masterPath на ci можно узнать из переменной окружения, локльно поиском package/.git
+  * переделать api главного модуля:
+   `{onMetricChange, onCommandExecuteFail, onCustomFunctionExecuteResultFail} = require('advanced-build-conditions');`
+    - onMetricChange может принимать что-то вроде
+    ```javascript
+    eslintViolations:{
+      compare: [>|<|=|!=],
+      with: ['local'|'master'|'function']
+    }
+    ```
+  * использовать lib @XFree/grunt-eslint-differ
