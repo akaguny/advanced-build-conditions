@@ -3,11 +3,12 @@ module.exports = {
   'env': {
     'node': true,
     'jasmine': true,
+    'es6': true
   },
-  'extends': ['standard', 'plugin:jasmine/recommended'],
+  'extends': ['plugin:jasmine/recommended'],
   'parserOptions': {
     'sourceType': 'module',
-    'ecmaVersion': 6,
+    'ecmaVersion': 8,
   },
   'rules': {
     'linebreak-style': [
