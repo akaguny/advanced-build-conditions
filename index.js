@@ -54,8 +54,7 @@
  */
 /* eslint-env es6:true */
 'use-strict';
-const fs = require('fs-extra'),
-      path = require('path'),
+const path = require('path'),
       ensureArray = require('ensure-array'),
       procArg = process.argv,
       allowedModes = {
@@ -81,7 +80,7 @@ if (require.main === module) {
 
 /**
  * Главная функция, точка входа
- * @param {Array|config} args
+ * @param {config} args
  * @return {Promise}
  */
 function main (args) {
@@ -194,72 +193,40 @@ function prepareInput (mode, mainArgs, isLocal) {
       resultJSONPath,
       masterPath,
       input,
-      eslintConfigSection,
-      teamcityConfig,
-      teamcityConfigStartPosition,
-      currentModeIsConsole = currentExecutionMode === 'console',
-      masterPararameterIndex;
+      teamcityConfig;
 
   switch (mode) {
     case allowedModes.eslint:
-      if (currentModeIsConsole) {
-        teamcityConfigStartPosition = mainArgs.indexOf('teamcity');
-        eslintConfigSection = mainArgs.slice(mainArgs.indexOf('eslint'), teamcityConfigStartPosition !== -1 ? teamcityConfigStartPosition : mainArgs.length);
-        currentJSON = fs.readJSON(`${eslintConfigSection[eslintConfigSection.indexOf('-current') + 1]}`);
-        masterPararameterIndex = eslintConfigSection.indexOf('-master');
-        if (masterPararameterIndex === -1) {
-          teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
-            return tc.getBuildArtifact();
-          });
-        } else {
-          masterJSON = fs.readJSON(eslintConfigSection[masterPararameterIndex + 1]);
-        }
-        resultJSONPath = path.resolve(eslintConfigSection.indexOf('-result') !== -1 ? eslintConfigSection[eslintConfigSection.indexOf('-result') + 1] : path.dirname(mainArgs[1]), `result.json`);
-      } else {
-        currentJSON = typeof mainArgs.eslint.currentJSON === 'string' ? fs.readJSON(mainArgs.eslint.currentJSON).then((currentObject) => {
-          return currentObject.map((item) => {
+      currentJSON = Promise.resolve(mainArgs.eslint.currentJSON).then((currentObject) => {
+        return currentObject.map((item) => {
+          if (isLocal) {
+            item.filePath = item.filePath.replace(/\\/g, '/');
+          }
+          return item;
+        });
+      });
+      masterPath = mainArgs.eslint.masterPath;
+      teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
+      masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
+        return tc.getBuildArtifact().then((artifact) => {
+          return JSON.parse(artifact).map((item) => {
+            // FIXME: захардкожен teamcity, можно выявлять на основе наличия или отсутствия конфига
+            item.filePath = utils.mergePathsFromAnyEnv(masterPath, item.filePath, allowedModes.teamcity);
             if (isLocal) {
               item.filePath = item.filePath.replace(/\\/g, '/');
             }
             return item;
           });
-        }).catch(e => { throw new Error(e); })
-          : Promise.resolve(mainArgs.eslint.currentJSON).then((currentObject) => {
-            return currentObject.map((item) => {
-              if (isLocal) {
-                item.filePath = item.filePath.replace(/\\/g, '/');
-              }
-              return item;
-            });
-          });
-        masterPath = mainArgs.eslint.masterPath;
-        if (mainArgs.eslint.masterJSON && mainArgs.eslint.masterJSON.length !== 0) {
-          masterJSON = fs.readJSON(mainArgs.eslint.masterJSON);
-        } else {
-          teamcityConfig = prepareInput(allowedModes.teamcity, mainArgs);
-          masterJSON = tc.init(teamcityConfig, teamcityConfig.masterBranch).then(() => {
-            return tc.getBuildArtifact().then((artifact) => {
-              return JSON.parse(artifact).map((item) => {
-                // FIXME: захардкожен teamcity, можно выявлять на основе наличия или отсутствия конфига
-                item.filePath = utils.mergePathsFromAnyEnv(masterPath, item.filePath, allowedModes.teamcity);
-                if (isLocal) {
-                  item.filePath = item.filePath.replace(/\\/g, '/');
-                }
-                return item;
-              });
-            }).catch((e) => {
-              if (e instanceof errors.teamcity) {
-                // TODO: отрефакторить prepare, прекращать работу модуля на этом этапе
-                return currentJSON;
-              } else {
-                throw new Error(e);
-              }
-            });
-          });
-        }
-        resultJSONPath = mainArgs.eslint.resultJSON ? mainArgs.eslint.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
-      }
+        }).catch((e) => {
+          if (e instanceof errors.teamcity) {
+            // TODO: отрефакторить prepare, прекращать работу модуля на этом этапе
+            return currentJSON;
+          } else {
+            throw new Error(e);
+          }
+        });
+      });
+      resultJSONPath = mainArgs.eslint.resultJSON ? mainArgs.eslint.resultJSON : path.resolve(path.dirname(procArg[1]), `result.json`);
       // FIXME возвращать в виде объекта, использовать деструктуризацию
       input = Promise.all([masterJSON, currentJSON, resultJSONPath, masterPath]);
       break;
@@ -272,34 +239,24 @@ function prepareInput (mode, mainArgs, isLocal) {
 
 /**
  * Смаппировать конфигурацию для temcity
- * @param {Array|Config} mainArgs - аргументы
+ * @param {Config} mainArgs - аргументы
  * @returns {teamcityConfig}
  */
 function mapTeamcityConfig (mainArgs) {
   const teamcityConfig = {
-    username: '',
-    password: '',
+    username: mainArgs.login,
+    password: mainArgs.password,
     host: '',
     buildTypeId: '',
     buildId: ''
   };
-  let positionOfTcConf,
-      _teamcityConfig = clone(mainArgs.teamcity);
+  let _teamcityConfig = clone(mainArgs.teamcity);
 
-  if (currentExecutionMode === 'console') {
-    positionOfTcConf = mainArgs.indexOf('teamcity');
-    teamcityConfig.username = mainArgs.indexOf('login', positionOfTcConf);
-    teamcityConfig.password = mainArgs.indexOf('pass', positionOfTcConf);
-    teamcityConfig.host = mainArgs.indexOf('host', positionOfTcConf);
-    teamcityConfig.buildTypeId = mainArgs.indexOf('projectid', positionOfTcConf);
-    teamcityConfig.masterBranch = mainArgs.indexOf('masterBranch', positionOfTcConf);
-  } else {
-    teamcityConfig.username = _teamcityConfig.login;
-    teamcityConfig.password = _teamcityConfig.password;
-    teamcityConfig.host = _teamcityConfig.host;
-    teamcityConfig.buildTypeId = _teamcityConfig.buildTypeId;
-    teamcityConfig.masterBranch = _teamcityConfig.masterBranch;
-  }
+  teamcityConfig.username = _teamcityConfig.login;
+  teamcityConfig.password = _teamcityConfig.pass;
+  teamcityConfig.host = _teamcityConfig.host;
+  teamcityConfig.buildTypeId = _teamcityConfig.buildTypeId;
+  teamcityConfig.masterBranch = _teamcityConfig.masterBranch;
 
   return teamcityConfig;
 }
