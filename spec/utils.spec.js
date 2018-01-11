@@ -30,19 +30,19 @@ describe('utils', () => {
       });
     });
 
-    describe('filerArrayOfObjectsByPropertyValue', () => {
+    describe('findObjectInArrayByPropertyName', () => {
       let exampleArrayOfObjects;
       beforeAll(() => {
         exampleArrayOfObjects = [{a: 'a'}, {a: 'b'}, 'c'];
       });
 
       it('success > value', () => {
-        expect(utils.filerArrayOfObjectsByPropertyValue(exampleArrayOfObjects,
+        expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
           'a', 'a')).toEqual(exampleArrayOfObjects[0]);
       });
 
       it('fail > undefined', () => {
-        expect(utils.filerArrayOfObjectsByPropertyValue(exampleArrayOfObjects,
+        expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
           'a', 'd')).toBeUndefined();
       });
     });
