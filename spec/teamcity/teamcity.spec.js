@@ -81,7 +81,7 @@ describe('teamcity', () => {
         tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
       });
 
-      fdescribe('позволяет получать', () => {
+      describe('позволяет получать', () => {
         beforeEach((done) => {
           tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName).then(done);
         });
@@ -94,7 +94,7 @@ describe('teamcity', () => {
             });
           tc.getBuildArtifact().then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
-            done()
+            done();
           });
         });
 
