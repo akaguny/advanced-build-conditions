@@ -54,8 +54,7 @@
  */
 /* eslint-env es6:true */
 'use-strict';
-const fs = require('fs-extra'),
-      path = require('path'),
+const path = require('path'),
       ensureArray = require('ensure-array'),
       procArg = process.argv,
       allowedModes = {
@@ -194,11 +193,7 @@ function prepareInput (mode, mainArgs, isLocal) {
       resultJSONPath,
       masterPath,
       input,
-      eslintConfigSection,
-      teamcityConfig,
-      teamcityConfigStartPosition,
-      currentModeIsConsole = currentExecutionMode === 'console',
-      masterPararameterIndex;
+      teamcityConfig;
 
   switch (mode) {
     case allowedModes.eslint:

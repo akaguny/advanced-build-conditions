@@ -1,5 +1,5 @@
 const path = require('path'),
-fs = require('fs-extra');
+      fs = require('fs-extra');
 let helpers = {};
 /**
  * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
