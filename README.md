@@ -86,4 +86,6 @@ config.eslint.resultJSON - путь, по которому будет сохра
       with: ['local'|'master'|'function']
     }
     ```
+    или
+    `eslintViolations > master`/`eslintViolations != master`/`karmaCoverage < master`
   * использовать lib @XFree/grunt-eslint-differ
