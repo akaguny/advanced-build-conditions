@@ -81,12 +81,12 @@ describe('teamcity', () => {
         tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName);
       });
 
-      describe('позволяет получать', () => {
+      fdescribe('позволяет получать', () => {
         beforeEach((done) => {
           tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName).then(done);
         });
 
-        it('артефакт мастер сборки', () => {
+        it('артефакт мастер сборки', (done) => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`);
@@ -94,28 +94,31 @@ describe('teamcity', () => {
             });
           tc.getBuildArtifact().then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
+            done()
           });
         });
 
-        it('параметры сбороки', () => {
+        it('параметры сбороки', (done) => {
           nock(testHost)
             .get(function (url) {
-              expect(url).toEqual(`/app/rest/builds/buildId:${testBuildId}/statistics `);
+              expect(url).toEqual(`/app/rest/builds/buildId:${testBuildId}/statistics`);
               return false;
             });
-          tc.getBuildStatistics('', testBuildId).then((buildStatistic) => {
-            expect(JSON.parse(buildStatistic)).toEqual(buildStatisticsJSON);
+          tc.getBuildStatistics(undefined, testBuildId).then((buildStatistic) => {
+            expect(buildStatistic).toEqual(buildStatisticsJSON.property);
+            done();
           });
         });
 
-        it('все ветки в билд конфигурации', () => {
+        it('все ветки в билд конфигурации', (done) => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`);
               return false;
             });
-          tc.getBranches().then((branches) => {
-            expect(JSON.parse(branches)).toEqual(branches);
+          tc.getBranches().then((_branches) => {
+            expect(_branches).toEqual(branches.branch);
+            done();
           });
         });
       });
