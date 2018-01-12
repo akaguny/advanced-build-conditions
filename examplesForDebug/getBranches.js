@@ -5,6 +5,8 @@ init({
   password: '',
   host: '',
   buildTypeId: ''
-}, 'develop/001.00').then(function () {
+}, function (branches) {
+  return branches[1];
+}).then(function () {
   return getBranches();
 }).then(console.log);
