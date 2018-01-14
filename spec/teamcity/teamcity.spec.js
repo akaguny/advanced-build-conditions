@@ -121,6 +121,14 @@ describe('teamcity', () => {
             done();
           });
         });
+      
+        it('запуск осуществляется в teamcity', ()=>{
+          let processenvTEAMCITY_VERSION = process.env.TEAMCITY_VERSION;
+          process.env.TEAMCITY_VERSION = '123';
+
+          expect(tc.isTeamcity()).toBeTruthy();
+          process.env.TEAMCITY_VERSION = processenvTEAMCITY_VERSION;
+        });
       });
 
       describe('позволяет устанавливать', () => {
