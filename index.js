@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/** run from commandline:
- * node index.js
- * eslint
- * -master /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json
- * -current /home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json
- * teamcity
- * -login testUsername
- * -pass testPassword
- * -host testHost
- * -buildTypeId testBuildTypeId
- * -buildId testBuildId
- */
-
 /**
  * run as nodejs module
  * const buildFailedConditions = require('buildFailedConditions');
@@ -68,15 +55,9 @@ const path = require('path'),
 
 let currentExecutionMode = '';
 
-if (require.main === module) {
-  console.log('console mod');
-  currentExecutionMode = 'console';
-  main(procArg.slice(1));
-} else {
-  console.log('require mod');
-  currentExecutionMode = 'module';
-  module.exports = main;
-}
+console.log('require mod');
+currentExecutionMode = 'module';
+module.exports = main;
 
 /**
  * Главная функция, точка входа
@@ -99,12 +80,7 @@ function main (args) {
  * @returns {Boolean}
  */
 function isCalledLocal (args) {
-  let calledLocal;
-
-  calledLocal = (Array.isArray(args) && args.indexOf('--local') !== -1) ||
-    args.isLocalRun;
-
-  return calledLocal === true;
+  return !tc.isTeamcity();
 }
 
 /**
