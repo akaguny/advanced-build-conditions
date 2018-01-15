@@ -1,6 +1,7 @@
 const path = require('path'),
       fs = require('fs-extra');
 let helpers = {};
+const originalEnv = process.env;
 /**
  * @typedef {Object} testDataJSONNames имена обозначающие JSON с тестовыми
  * данными
@@ -25,6 +26,8 @@ let helpers = {};
 
 helpers.prepareEslintPartOfConfig = prepareEslintPartOfConfig;
 helpers.prepareConfig = prepareConfig;
+helpers.mockEnv = mockEnv;
+helpers.reset = resetEnv;
 
 /**
  * Идентификация входных данных
@@ -82,7 +85,8 @@ function prepareEslintPartOfConfig (testCase, fixturesPath, notIncludeExtention)
 
 /**
  * Подготовка конфигурации для работы
- * @param {String} forResult - failed | success
+ * @param {string} testCase - кейс использования:
+ * (equal|oneMoreError|oneMoreNewError|empty)
  * @param {TestCreditials} testCreditials - тестовые реквизиты
  * @param {String} fixturesPath - путь к фикстурам
  * @return {TestConfig}
@@ -95,15 +99,23 @@ function prepareConfig (forResult, fixturesPath, testCreditials) {
     masterJSON: fs.readJsonSync(eslintTestData.masterJSON),
     currentJSON: fs.readJsonSync(eslintTestData.currentJSON)
   };
-  config.teamcity = testCreditials && {
-    login: testCreditials.login,
-    pass: testCreditials.pass,
-    host: testCreditials.host,
-    buildTypeId: testCreditials.buildTypeId,
-    buildId: testCreditials.buildId
-  };
 
   return config;
 };
+
+/**
+ * Установка переменных окружения для тестирования
+ */
+function mockEnv() {
+  process.env['NODE_ENV'] = 'testing';
+  process.env['TEAMCITY_BUILD_PROPERTIES_FILE'] = './test/test.properties';
+}
+
+/**
+ * Сброс переменных окружения
+ */
+function resetEnv() {
+  process.env = originalEnv;
+}
 
 module.exports = helpers;

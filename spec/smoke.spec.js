@@ -7,14 +7,6 @@ const path = require('path'),
       },
       helpers = require('./helpers');
 
-let testCreditials = {
-  login: 'teamcity',
-  pass: 'password',
-  host: 'http://localhost:8080',
-  buildTypeId: 'testBuildTypeId',
-  buildId: '19994'
-};
-
 describe('smoke тест: выставление статуса сборки', () => {
   let buildFailedConditions;
 
