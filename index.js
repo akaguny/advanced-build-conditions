@@ -26,11 +26,11 @@
 
 /**
  * @typedef {Object} TeamcityConfig
- * @property {String} username - имя пользователя
- * @property {String} password - пароль пользователя
- * @property {String} host - хост, вместе с протоколом и портом
- * @property {String} buildTypeId - id проекта
- * @property {String} buildId - id сборки
+ * @property {String} [username=process.env.TEAMCITY_AUTH_USERID] - имя пользователя
+ * @property {String} [password=process.env.TEAMCITY_AUTH_PASSWORD] - пароль пользователя
+ * @property {String} [host=teamcity.serverUrl] - хост, вместе с протоколом и портом
+ * @property {String} [buildTypeId=teamcity.buildType.id] - id проекта
+ * @property {String} [buildId] - id сборки
  */
 /**
  * @typedef {Object} EslintConfig
@@ -54,8 +54,6 @@ const path = require('path'),
 
 let currentExecutionMode = '';
 
-console.log('require mod');
-currentExecutionMode = 'module';
 module.exports = main;
 
 /**
@@ -64,10 +62,8 @@ module.exports = main;
  * @return {Promise}
  */
 function main (args) {
-  let currentMode = getCurrentMode(args),
-      local = isCalledLocal(args);
+  let currentMode = getCurrentMode(args);
 
-  console.log('main func args', args);
   return runChecks(currentMode, args, local).then((result) => {
     return result;
   });
