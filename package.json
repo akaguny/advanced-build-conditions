@@ -1,6 +1,6 @@
 {
   "name": "advanced-build-conditions",
-  "version": "3.0.0-6",
+  "version": "3.0.0-7",
   "description": "Набор инструментов для выставления статуса сборки",
   "main": "index.js",
   "scripts": {

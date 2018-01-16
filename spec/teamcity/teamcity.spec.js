@@ -57,7 +57,7 @@ describe('teamcity', () => {
           .reply(200, eslintReportJSON)
           .get(`/app/rest/builds/buildId:${testBuildId}/statistics`)
           .reply(200, buildStatisticsJSON)
-          .get(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?fields=branch(internalName)`)
+          .get(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`)
           .reply(200, branches);
       });
 
@@ -113,7 +113,7 @@ describe('teamcity', () => {
         it('все ветки в билд конфигурации', (done) => {
           nock(testHost)
             .get(function (url) {
-              expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?fields=branch(internalName)`);
+              expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?locator=policy:ALL_BRANCHES&fields=branch(internalName,default,active)`);
               return false;
             });
           tc.getBranches().then((_branches) => {

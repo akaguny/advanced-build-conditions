@@ -16,26 +16,24 @@
 ### nodejs module
 ```
 const buildFailedConditions = require('buildFailedConditions'),
-procCwd = process.cwd(),
-// for use that npm install eslint-teamcity --save
-eslintTeamcity = require('eslint-teamcity'),
-// for use that npm install eslint --save
-eslintCodeframe = require('eslint/lib/formatters/codeframe');
 let config = {eslint: {}, teamcity: {}};
+
 config.eslint = {
-  masterPath: `checkoutDir/advanced-build-conditions`
-  masterJSON: `checkoutDir/advanced-build-conditions/spec/fixtures/masterJSON.json`,
-  currentJSON: `checkoutDir/advanced-build-conditions/spec/fixtures/currentJSON.json`
-  resultJSON: 'checkoutDir/advanced-build-conditions/spec/fixtures/resultJSON.json'
+  // https://eslint.org/docs/user-guide/configuring
 };
+
 config.teamcity = {
-  login: testUsername,
-  pass: testPassword,
-  host: testHost,
-  buildTypeId: testBuildTypeId,
-  masterBranch: testMasterBranch
-};
-config.local = !process.env.TEAMCITY_VERSION;
+  // Опциональный параметр
+  // buildTypeId: process.env.TEAMCITY_BUILD_TYPE_ID,
+  // Опциональный параметр
+  // serverUrl: process.env.TEAMCITY_SERVER_URL,
+  login: process.env.TEAMCITY_AUTH_USERID,
+  password: process.env.TEAMCITY_AUTH_PASSWORD,
+  // string|function
+  branch: function (branches) {
+    return branches[0];
+  };
+}
 console.log(buildFailedConditions(config));
 ```
 #### Описание:
@@ -54,7 +52,7 @@ config.eslint.resultJSON - путь, по которому будет сохра
 Скоро... есть прототип, заведена задача #13
 ## Модули
 ### Teamcity
-Позволяет взаимодействовать с teamcity по REST и teamcity service messages.
+Позволяет взаимодействовать с teamcity по REST, читать параметры сборки и взаимодействовать через teamcity service messages.
 
 ### Eslint
 Умеет сравнивать 2 результата проверок codestyle и выявляет униклаьные
