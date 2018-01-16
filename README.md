@@ -13,7 +13,6 @@
 * npm5
 * linux(желательно)
 ## Использование
-### nodejs module
 ```
 const buildFailedConditions = require('buildFailedConditions'),
 procCwd = process.cwd(),
@@ -22,15 +21,7 @@ eslintTeamcity = require('eslint-teamcity'),
 // for use that npm install eslint --save
 eslintCodeframe = require('eslint/lib/formatters/codeframe');
 let config = {eslint: {}, teamcity: {}};
-config.eslint = {
-  masterPath: `checkoutDir/advanced-build-conditions`
-  masterJSON: `checkoutDir/advanced-build-conditions/spec/fixtures/masterJSON.json`,
-  currentJSON: `checkoutDir/advanced-build-conditions/spec/fixtures/currentJSON.json`
-  resultJSON: 'checkoutDir/advanced-build-conditions/spec/fixtures/resultJSON.json'
-};
 config.teamcity = {
-  login: testUsername,
-  pass: testPassword,
   host: testHost,
   buildTypeId: testBuildTypeId,
   masterBranch: testMasterBranch
@@ -39,17 +30,7 @@ config.local = !process.env.TEAMCITY_VERSION;
 console.log(buildFailedConditions(config));
 ```
 #### Описание:
-config.eslint.masterPath - путь к базовой директории,директории в которую происходит чекаут(локально)
-config.eslint.masterJSON - путь к json с сервера, json с результатами проверки мастер ветки. Если параметр отстутсвует,
-то json будет скачан с сервера на основании конфигурации config.teamcity.
-config.eslint.currentJSON - путь к текущему json, полученному как результат проверки eslint с форматтером json и выводом
-по указанному пути
-config.eslint.resultJSON - путь, по которому будет сохранён JSON с новыми ошибками.
 ## Конфигурация teamcity
-Для использования получения config.eslint.masterJSON с сервера с использованием модуля teamcity необходимо:
-* на вкладке `General Settings` настроек проекта сборки выставить
- `Build number format:` в значение `%teamcity.build.branch%`.
-* заполнить/дополнить поле `Artifact paths:` таким образом, что-бы папка, указанная как путь к resultJSON в конфигурации
 ## Grunt таск
 Скоро... есть прототип, заведена задача #13
 ## Модули
@@ -81,11 +62,25 @@ config.eslint.resultJSON - путь, по которому будет сохра
    `{onMetricChange, onCommandExecuteFail, onCustomFunctionExecuteResultFail} = require('advanced-build-conditions');`
     - onMetricChange может принимать что-то вроде
     ```javascript
-    eslintViolations:{
-      compare: [>|<|=|!=],
-      with: ['local'|'master'|'function']
+    ['eslintViolations'|'karmaCoverage']:{
+      compare: ['>'|'<'|'==='|'>='|'<='|'!='],
+      with: 'function' | 'branchName'
     }
     ```
-    или
-    `eslintViolations > master`/`eslintViolations != master`/`karmaCoverage < master`
+
+    ```javascript
+    {
+      eslintViolations : {
+        compare: ['>'|'<'|'==='|'>='|'<='|'!='],
+        with: 'master'
+      },
+      karmaCoverage: {
+        compare: '>=',
+        with: function (branches) {
+          return branches[0];  
+        }
+      }
+    }
+
+    ```
   * использовать lib @XFree/grunt-eslint-differ
