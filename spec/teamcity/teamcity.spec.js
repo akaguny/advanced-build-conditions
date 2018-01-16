@@ -2,7 +2,9 @@ const path = require('path'),
       basePackagePath = path.resolve(__dirname, '../..'),
       nock = require('nock'),
       fs = require('fs-extra'),
-      eslintReportJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/error.json`);
+      eslintReportJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/error.json`),
+      buildStatisticsJSON = fs.readJSONSync(`${basePackagePath}/spec/fixtures/buildStatistics.json`),
+      branches = fs.readJSONSync(`${basePackagePath}/spec/fixtures/branches.json`);
 
 let tc;
 
@@ -52,7 +54,11 @@ describe('teamcity', () => {
           .get(`/httpAuth/app/rest/builds?locator=buildType:${testBuildTypeId},branch:name:${encodedTestMasterBuildName},count:1,status:SUCCESS,state:finished`)
           .reply(200, `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><builds count="1" href="/httpAuth/app/rest/builds?locator=buildType:project_id,branch:name:1.12.0/develop,count:1,status:SUCCESS,state:finished" nextHref="/httpAuth/app/rest/builds?locator=buildType:project_id,branch:(name:1.12.0/develop),count:1,status:SUCCESS,state:finished,start:1"><build id="${testBuildId}" buildTypeId="project_id" number="1.12.0/develop" status="SUCCESS" state="finished" branchName="1.12.0/develop" href="/httpAuth/app/rest/builds/id:1900030" webUrl="https://teamcity.host/viewLog.html?buildId=1900030&amp;buildTypeId=project_id"/></builds>`)
           .get(`/repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`)
-          .reply(200, eslintReportJSON);
+          .reply(200, eslintReportJSON)
+          .get(`/app/rest/builds/buildId:${testBuildId}/statistics`)
+          .reply(200, buildStatisticsJSON)
+          .get(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?fields=branch(internalName)`)
+          .reply(200, branches);
       });
 
       afterEach(() => {
@@ -80,7 +86,7 @@ describe('teamcity', () => {
           tc.init({username: testUsername, password: testPassword, host: testHost, buildTypeId: testBuildTypeId}, testMasterBuildName).then(done);
         });
 
-        it('артефакт мастер сборки', () => {
+        it('артефакт мастер сборки', (done) => {
           nock(testHost)
             .get(function (url) {
               expect(url).toEqual(`repository/download/${testBuildTypeId}/${testBuildId}:id/reports.zip%21/eslint.json`);
@@ -88,7 +94,40 @@ describe('teamcity', () => {
             });
           tc.getBuildArtifact().then((buildArtifact) => {
             expect(JSON.parse(buildArtifact)).toEqual(eslintReportJSON);
+            done();
           });
+        });
+
+        it('параметры сбороки', (done) => {
+          nock(testHost)
+            .get(function (url) {
+              expect(url).toEqual(`/app/rest/builds/buildId:${testBuildId}/statistics`);
+              return false;
+            });
+          tc.getBuildStatistics(undefined, testBuildId).then((buildStatistic) => {
+            expect(buildStatistic).toEqual(buildStatisticsJSON.property);
+            done();
+          });
+        });
+
+        it('все ветки в билд конфигурации', (done) => {
+          nock(testHost)
+            .get(function (url) {
+              expect(url).toEqual(`/app/rest/buildTypes/id:${testBuildTypeId}/branches?fields=branch(internalName)`);
+              return false;
+            });
+          tc.getBranches().then((_branches) => {
+            expect(_branches).toEqual(branches.branch);
+            done();
+          });
+        });
+      
+        it('запуск осуществляется в teamcity', ()=>{
+          let processenvTEAMCITY_VERSION = process.env.TEAMCITY_VERSION;
+          process.env.TEAMCITY_VERSION = '123';
+
+          expect(tc.isTeamcity()).toBeTruthy();
+          process.env.TEAMCITY_VERSION = processenvTEAMCITY_VERSION;
         });
       });
 
