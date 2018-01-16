@@ -16,35 +16,35 @@ describe('utils', () => {
 
       expect(path.replace(/\\/g, '/')).toEqual('/home/alexey/IdeaProjects/sfa/devTools/js/grunt-config/clean.js');
     });
+  });
 
-    describe('isVerboseMode', () => {
-      it('true', () => {
-        process.argv.push('--verbose');
+  describe('isVerboseMode', () => {
+    it('true', () => {
+      process.argv.push('--verbose');
 
-        expect(utils.isVerboseMode()).toBeTruthy();
-        process.argv.pop();
-      });
-
-      it('false', () => {
-        expect(utils.isVerboseMode()).toBeFalsy();
-      });
+      expect(utils.isVerboseMode()).toBeTruthy();
+      process.argv.pop();
     });
 
-    describe('findObjectInArrayByPropertyName', () => {
-      let exampleArrayOfObjects;
-      beforeAll(() => {
-        exampleArrayOfObjects = [{a: 'a'}, {a: 'b'}, 'c'];
-      });
+    it('false', () => {
+      expect(utils.isVerboseMode()).toBeFalsy();
+    });
+  });
 
-      it('success > value', () => {
-        expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
-          'a', 'a')).toEqual(exampleArrayOfObjects[0]);
-      });
+  describe('findObjectInArrayByPropertyName', () => {
+    let exampleArrayOfObjects;
+    beforeAll(() => {
+      exampleArrayOfObjects = [{a: 'a'}, {a: 'b'}, 'c'];
+    });
 
-      it('fail > undefined', () => {
-        expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
-          'a', 'd')).toBeUndefined();
-      });
+    it('success > value', () => {
+      expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
+        'a', 'a')).toEqual(exampleArrayOfObjects[0]);
+    });
+
+    it('fail > undefined', () => {
+      expect(utils.findObjectInArrayByPropertyName(exampleArrayOfObjects,
+        'a', 'd')).toBeUndefined();
     });
   });
 });
