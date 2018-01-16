@@ -32,13 +32,12 @@
  * @property {String} buildTypeId - id проекта
  * @property {String} buildId - id сборки
  */
-
 /**
  * @typedef {Object} EslintConfig
- * @property {Object} masterJSON - json с мастер ветки
- * @property {Object} currentJSON - текущий json
- * @property {String} resultJSONPath - путь, куда записывать результат
+ * @param {object[]} report текущие результаты проверки eslint
+ * @param {object[]} [masterReport] результаты с котромыми необходимо сравнивать
  */
+
 /* eslint-env es6:true */
 'use-strict';
 const path = require('path'),
