@@ -35,7 +35,7 @@ console.log(buildFailedConditions(config));
 Скоро... есть прототип, заведена задача #13
 ## Модули
 ### Teamcity
-Позволяет взаимодействовать с teamcity по REST и teamcity service messages.
+Позволяет взаимодействовать с teamcity по REST, читать параметры сборки и взаимодействовать через teamcity service messages.
 
 ### Eslint
 Умеет сравнивать 2 результата проверок codestyle и выявляет униклаьные
