@@ -1,27 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * run as nodejs module
- * const buildFailedConditions = require('buildFailedConditions');
- * let config = {eslint: {}, teamcity: {}};
- * config.eslint = {
-    masterJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/error.json`,
-    currentJSON: `/home/alexey/IdeaProjects/eslint-teamcity-failed-conditions/spec/fixtures/empty.json`
-  };
- * config.teamcity = {
-    login: testUsername,
-    pass: testPassword,
-    host: testHost,
-    buildTypeId: testBuildTypeId,
-    masterBranch: testMasterBranch
-  };
- * console.log(buildFailedConditions(config));
- */
-
-/**
  * @typedef {Object} Config
  * @property {TeamcityConfig} teamcity
  * @property {EslintConfig} eslint
+ * @property {CheckViolationsConfig} checkViolations
  */
 
 /**
