@@ -1,4 +1,4 @@
-# advanced build conditions
+# teamcity failure conditions
 Решение для выставление статусов сборки ct(continues test) на основе дополнительных
 проверок, основанных на результатах проверок unit тестов, линтеров и т.д.
 
@@ -7,27 +7,40 @@
 [![Flow](./img/before358.jpg)](./img/before.jpg)
 [![Flow](./img/after358.jpg)](./img/after.jpg)
 ## Установка
-`npm i advanced-build-conditions@^2.0.2-beta --save-dev`
+`npm i advanced-build-conditions@^3.0.0-beta --save-dev`
 ### Требования
 * NodeJs 8+
 * npm5
 * linux(желательно)
 ## Использование
 ```
-const buildFailedConditions = require('buildFailedConditions'),
-procCwd = process.cwd(),
-// for use that npm install eslint-teamcity --save
-eslintTeamcity = require('eslint-teamcity'),
-// for use that npm install eslint --save
-eslintCodeframe = require('eslint/lib/formatters/codeframe');
+const buildFailedConditions = require('buildFailedConditions');
 let config = {eslint: {}, teamcity: {}};
-config.teamcity = {
-  host: testHost,
-  buildTypeId: testBuildTypeId,
-  masterBranch: testMasterBranch
+config.eslint = {
+ [src: [] = *.js],
+ //https://eslint.org/docs/developer-guide/nodejs-api#cliengine,
+ [outputFile='./report/eslint.json'],
+ [format=teamcity]
 };
-config.local = !process.env.TEAMCITY_VERSION;
-console.log(buildFailedConditions(config));
+config.teamcity = {
+ login: [testUsername=process.env.TEAMCITY_AUTH_USERID],
+ pass: [testPassword=process.env.TEAMCITY_AUTH_PASSWORD],
+ host: [testHost=teamcity.serverUrl],
+ buildTypeId: [buildTypeId=teamcity.buildType.id]
+};
+config.checkViolations = {
+ eslintViolations : {
+   compare: ['>'|'<'|'==='|'>='|'<='|'!='],
+   [with(branches)="master"]
+ },
+ karmaCoverage: {
+   compare: '>=',
+   with(branches) {
+     return branches[0];
+   },
+   value: 'CodeCoverageM'
+ }
+}
 ```
 #### Описание:
 ## Конфигурация teamcity
